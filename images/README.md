@@ -44,7 +44,7 @@ python generate-image.py <reference_image> [options]
 python generate-image.py dante.jpg
 
 # Generate images for specific chapters of Inferno
-python generate-image.py dante.jpg -p inferno -c 1 2 3
+python generate-image.py dante.jpg -p inferno -c 1
 
 # Generate image with specific characters
 python generate-image.py dante.jpg --characters "Dante,Beatrice"
