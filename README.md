@@ -29,6 +29,16 @@ The converter generates the following directory structure for each language:
 └── paradiso.md             # Paradiso summaries by canto
 ```
 
+## Translation Quality
+
+The translation data has been segmented to match the Italian source text structure. However, validation shows some discrepancies:
+
+- **Overall accuracy**: 88.3% of segments (326/369) have matching line counts across Italian, English, and Japanese versions
+- **Data completeness**: Some segments contain incomplete translations (showing as single-line outputs), which may indicate LLM generation issues
+- **Minor variations**: Most discrepancies are 1-2 line differences, typical for cross-language translation
+
+Use `make check` to validate segment line count consistency across languages.
+
 ## License
 
 Script files are released under CC0 (public domain). However, Gemini's outputs are subject to [Gemini API Additional Terms of Service](https://ai.google.dev/gemini-api/terms), which prohibit use for machine learning training purposes. No LICENSE file is intentionally provided to avoid potential misunderstanding about the restrictions on AI-generated content.

@@ -1,4 +1,4 @@
-.PHONY: all clean convert-en convert-ja
+.PHONY: all convert-en convert-ja clean check
 
 all: convert-en convert-ja
 
@@ -10,3 +10,6 @@ convert-ja: ja.jsonl
 
 clean:
 	rm -rf en/ ja/
+
+check:
+	python check.py
