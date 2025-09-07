@@ -2,13 +2,49 @@
 
 This project translates Dante's Divine Comedy from Italian to English and Japanese using Google's Gemini 2.5 Pro model. Unlike previous multilingual explorations, this project focuses specifically on English and Japanese translations.
 
-## Source
+## Source Text
 
 Original Italian text from [Project Gutenberg](https://www.gutenberg.org/ebooks/1000).
 
+## Output Structure
+
+The converter generates the following directory structure for each language:
+
+```
+{output_dir}/                # Output directory (e.g., en/ or ja/)
+├── inferno/
+│   ├── 01.txt              # Canto 1 translation text
+│   ├── 02.txt              # Canto 2 translation text
+│   └── ...
+├── purgatorio/
+│   ├── 01.txt
+│   ├── 02.txt
+│   └── ...
+├── paradiso/
+│   ├── 01.txt
+│   ├── 02.txt
+│   └── ...
+├── inferno.md              # Inferno summaries by canto
+├── purgatorio.md           # Purgatorio summaries by canto
+└── paradiso.md             # Paradiso summaries by canto
+```
+
+### Individual Text Files (.txt)
+
+- Contains the complete translation of each canto
+- Each segment is separated by empty lines
+- Located in `{part}/{canto:02d}.txt`
+
+### Summary Markdown Files (.md)
+
+- Contains summaries organized by canto
+- Each canto has a `## Canto {number}` heading
+- All segment summaries for that canto are concatenated
+- Located in `{part}.md`
+
 ## License
 
-The source code is released under CC0 (public domain). However, Gemini's outputs are subject to [Gemini API Additional Terms of Service](https://ai.google.dev/gemini-api/terms), which prohibit use for machine learning training purposes. No LICENSE file is intentionally provided to avoid potential misunderstanding about the restrictions on AI-generated content.
+Script files are released under CC0 (public domain). However, Gemini's outputs are subject to [Gemini API Additional Terms of Service](https://ai.google.dev/gemini-api/terms), which prohibit use for machine learning training purposes. No LICENSE file is intentionally provided to avoid potential misunderstanding about the restrictions on AI-generated content.
 
 ## Related Previous Projects
 
