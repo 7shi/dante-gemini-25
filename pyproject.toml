@@ -1,0 +1,14 @@
+[project]
+name = "dante-gemini-25"
+version = "0.1.0"
+description = "Translation of Dante's Divine Comedy using Gemini 2.5 Pro"
+readme = "README.md"
+requires-python = ">=3.10"
+repository = "https://github.com/7shi/dante-gemini-25"
+
+dependencies = [
+    "llm7shi",
+]
+
+[tool.uv.sources]
+llm7shi = { git = "https://github.com/7shi/llm7shi.git" }
