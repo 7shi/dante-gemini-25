@@ -2,9 +2,6 @@ import argparse
 import os
 import sys
 from PIL import Image
-
-# Add parent directory to path to import banana module
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from banana import generate_and_save_image
 
 def read_chapter_summaries(part, chapter):
