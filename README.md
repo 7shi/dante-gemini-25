@@ -11,7 +11,7 @@ Original Italian text from [Project Gutenberg](https://www.gutenberg.org/ebooks/
 The converter generates the following directory structure for each language:
 
 ```
-{output_dir}/                # Output directory (e.g., en/ or ja/)
+{output_dir}/               # Output directory (e.g., en/ or ja/)
 ├── inferno/
 │   ├── 01.txt              # Canto 1 translation text
 │   ├── 02.txt              # Canto 2 translation text
@@ -28,19 +28,6 @@ The converter generates the following directory structure for each language:
 ├── purgatorio.md           # Purgatorio summaries by canto
 └── paradiso.md             # Paradiso summaries by canto
 ```
-
-### Individual Text Files (.txt)
-
-- Contains the complete translation of each canto
-- Each segment is separated by empty lines
-- Located in `{part}/{canto:02d}.txt`
-
-### Summary Markdown Files (.md)
-
-- Contains summaries organized by canto
-- Each canto has a `## Canto {number}` heading
-- All segment summaries for that canto are concatenated
-- Located in `{part}.md`
 
 ## License
 
