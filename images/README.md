@@ -13,6 +13,7 @@ The image generation process involves two main steps:
 ## Files
 
 - **`characters.txt`**: Contains the detailed prompt for generating the reference image of the three main characters from Dante's Divine Comedy
+- **`banana.py`**: Core image generation module that interfaces with Google's Gemini API for image generation, includes retry logic and Sixel terminal display
 - **`generate-image.py`**: Python script that generates chapter illustrations using the reference image and chapter summaries
 
 ## Character Reference Image
@@ -53,7 +54,9 @@ python generate-image.py dante.jpg --characters "Dante,Beatrice"
 ## Dependencies
 
 - PIL (Python Imaging Library)
-- Nano Banana module (imported from parent directory)
+- Google Generative AI (`google-genai`)
+- Sixel converter for terminal image display
+- Nano Banana module (local `banana.py`)
 
 ## Process
 
@@ -63,3 +66,15 @@ python generate-image.py dante.jpg --characters "Dante,Beatrice"
 4. Saves generated images with sequential numbering (e.g., `01-1.jpg`, `01-2.jpg`)
 
 The generated illustrations maintain consistency with the reference character designs while depicting key scenes and moments from each chapter in a classical Renaissance art style inspired by Gustave Doré's Divine Comedy illustrations.
+
+## Technical Details
+
+The `banana.py` module provides the core image generation functionality:
+
+- **API Integration**: Uses Google's Gemini 2.5 Flash Image Preview model for image generation
+- **Retry Logic**: Implements robust retry mechanism for handling API rate limits and temporary failures
+- **Terminal Display**: Displays generated images directly in the terminal using Sixel protocol
+- **Error Handling**: Comprehensive error handling for various API response scenarios
+- **Safety Settings**: Configures appropriate safety settings for artistic content generation
+
+The module requires a `GEMINI_API_KEY` environment variable to authenticate with Google's Gemini API.
