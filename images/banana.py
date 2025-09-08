@@ -1,6 +1,7 @@
 import os
 import sys
 import time
+import re
 from google import genai
 from PIL import Image
 from io import BytesIO
@@ -81,6 +82,7 @@ def display_image_sixel(image, width=640):
         with BytesIO() as buf:
             resized_image.save(buf, format="PNG")
             SixelConverter(buf).write(sys.stdout)
+            print()
     except Exception as e:
         print(f"Sixel display failed: {e}", file=sys.stderr)
 
@@ -111,3 +113,69 @@ def generate_and_save_image(contents, output_filename="output.png"):
             return True
     
     return False
+
+def get_next_filename(base_name):
+    """
+    Generate output filename if not provided
+    """
+    # Remove existing sequential numbers (e.g., -001, -002, etc.)
+    clean_base = re.sub(r'-\d+$', '', base_name)
+    
+    # Find next available number to avoid overwriting
+    counter = 1
+    while True:
+        filename = f"{clean_base}-{counter:03d}.png"
+        if not os.path.exists(filename):
+            return filename
+        counter += 1
+
+def do_generate(prompt, input_images=None, output_filename=None):
+    contents = [prompt]
+
+    if input_images:
+        for image_path in input_images:
+            image = Image.open(image_path)
+            contents.append(image)
+
+    if not output_filename:
+        if input_images:
+            # Use first image filename with auto-incremented suffix
+            first_image = input_images[0]
+            base_name = os.path.splitext(first_image)[0]
+        else:
+            # Default to output if no images provided, with auto-increment
+            base_name = "output"
+        output_filename = get_next_filename(base_name)
+    
+    # Log to file before generating
+    import datetime
+    timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    input_files = ",".join(input_images) if input_images else ""
+    log_entry = f"{timestamp}\t{output_filename}\t{input_files}\t{prompt}\n"
+    
+    try:
+        # Check if log file exists, if not create with header
+        log_file = "log.tsv"
+        log_exists = os.path.exists(log_file)
+        with open(log_file, "a", encoding="utf-8") as log_file:
+            if not log_exists:
+                log_file.write("datetime\toutput\tinput\tprompt\n")
+            log_file.write(log_entry)
+    except Exception as e:
+        print(f"Warning: Could not write to log file: {e}", file=sys.stderr)
+    
+    generate_and_save_image(contents, output_filename)
+
+def main():
+    import argparse
+    parser = argparse.ArgumentParser(description='Generate image using prompt and input images')
+    parser.add_argument('prompt', help='Text prompt for image generation')
+    parser.add_argument('-i', '--image', action='append',
+                       help='Input image file (can be specified multiple times)')
+    parser.add_argument('-o', '--output',
+                       help='Output image filename')
+    args = parser.parse_args()
+    do_generate(args.prompt, args.image, args.output)
+
+if __name__ == "__main__":
+    main()
