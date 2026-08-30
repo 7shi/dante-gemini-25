@@ -242,7 +242,7 @@ def main():
     parser.add_argument('-t', '--to_lang', required=True,
                        help='Target language (e.g., english, japanese, italian)')
     parser.add_argument('-m', '--model', required=True,
-                       help='LLM model to use (e.g., openai:gpt-4o-mini, anthropic:claude-3-haiku-20240307)')
+                       help='LLM model to use (e.g., gemini-2.5-pro, openai:gpt-5.6-luna)')
     parser.add_argument('-o', '--output', required=True,
                        help='Output JSONL file for translation results')
     parser.add_argument('--proper-nouns', default='proper_nouns/all.tsv',

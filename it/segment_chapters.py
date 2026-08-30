@@ -236,7 +236,7 @@ def create_translation_chunks(directory, model, output_file, limit=None):
 def main():
     parser = argparse.ArgumentParser(description='Segment Italian chapters for translation using LLM')
     parser.add_argument('-m', '--model', required=True, 
-                       help='LLM model to use for segmentation (e.g., openai:gpt-4o-mini, anthropic:claude-3-haiku-20240307)')
+                       help='LLM model to use for segmentation (e.g., gemini-2.5-pro, openai:gpt-5.6-luna)')
     parser.add_argument('-o', '--output', required=True,
                        help='Output JSONL file to save segmentation results')
     parser.add_argument('--limit', type=int, 
