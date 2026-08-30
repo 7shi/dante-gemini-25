@@ -1,3 +1,15 @@
+"""Translate text segments with proper noun consistency and story context.
+
+Chapters must be generated in story order, front to back, with no gaps: the
+"previous story context" fed to each translation call is built by walking
+directories/chapters in order and collecting summaries of completed chapters
+before the first incomplete one, then accumulating further summaries as the
+processing loop advances. If a later chapter is generated (or resumed) while
+an earlier one is still missing, or an already-completed chapter is deleted
+and left unregenerated out of order, the context will omit, duplicate, or
+scramble summaries relative to story order.
+"""
+
 import os
 import json
 import argparse
