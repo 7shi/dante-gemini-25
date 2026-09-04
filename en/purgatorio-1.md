@@ -27,7 +27,7 @@
 27. The narrator passes through the wall of fire motivated by Beatrice, dreams of Leah and Rachel, and is then crowned sovereign over his own free will by Virgil, whose guidance is now complete.
 28. Entering the Earthly Paradise, the narrator meets Matelda, who explains the divine nature of the forest, its wind, and its two rivers, revealing it to be the Golden Age dreamed of by ancient poets.
 29. In the Earthly Paradise, Dante witnesses a magnificent divine procession led by seven candelabra, which includes biblical elders, symbolic creatures, and a triumphal chariot drawn by a griffin.
-30. As Virgil vanishes, Beatrice appears and sternly rebukes the weeping narrator by name, demanding he repent for straying from the true path after her death.
+30. Beatrice appears in the divine procession, causing Virgil to vanish, and then sternly rebukes a weeping Dante for his past sins, demanding his tearful repentance.
 31. After confessing his sins to Beatrice, the narrator is cleansed in the river Lethe and brought before her, where he witnesses a divine miracle in her eyes before she finally unveils her radiant smile.
 32. After the Griffin ties the Chariot to the Tree of Knowledge, Dante witnesses a complex allegory depicting the corruption of the Church, which Beatrice commands him to record upon his return to the world.
 33. After hearing Beatrice's final prophecy, Dante completes his purification by drinking from the river Eunoë, feeling wholly renewed and ready to ascend to the stars.

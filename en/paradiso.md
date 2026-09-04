@@ -64,7 +64,13 @@ Beatrice explains to the narrator why the four elements are corruptible even tho
 
 ## Canto 8
 
-This segment describes the narrator's ascent to the third heaven, Venus, the sphere of the lovers. He is greeted by the soul of Charles Martel, who explains his brief life and the unfulfilled potential of his rule. In response to the narrator's question about how good lineage can produce bad offspring, Charles delivers a long discourse on divine providence, celestial influence, and the importance of allowing individual natures to fulfill their God-given roles in society, criticizing how humans force people into unsuitable vocations.
+The narrator and Beatrice ascend to the third heaven, the sphere of Venus. The narrator reflects on the ancient pagan belief that this planet radiated love's influence. Upon arrival, signaled by Beatrice's increased beauty, he sees countless joyful souls dancing and singing 'Hosanna.' One soul approaches, quotes one of the narrator's own poems, and offers to speak. The narrator, with Beatrice's permission, eagerly asks the soul to reveal its identity.
+
+The soul of Charles Martel explains that he lived a short life on Earth. He describes the vast territories in France (Provence) and Italy (the Kingdom of Naples) he was destined to rule. He blames bad governance for the Sicilian Vespers revolt and warns that his brother, Robert of Anjou, needs to govern more wisely to avoid further trouble, criticizing his greed.
+
+Dante asks Charles Martel how a good father (a "sweet seed") can produce a bad son (something "bitter"). Charles begins a long, scholastic explanation, establishing the principle of divine providence: God's perfect plan is executed through the infallible angelic intelligences that move the celestial spheres, ensuring that all effects in the universe are directed toward a foreseen end, like an arrow to its target.
+
+Charles Martel explains that for society to function, people must have diverse roles and talents. He argues that divine providence, working through the heavens, distributes these different natures to individuals without regard to their family lineage. The world's great error, he concludes, is that it ignores these innate dispositions, forcing people into unsuitable professions—turning a natural soldier into a priest and a born preacher into a king—thus leading humanity astray.
 
 ## Canto 9
 

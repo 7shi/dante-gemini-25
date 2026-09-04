@@ -23,7 +23,7 @@
 23. After escaping the Malebranche, Virgil and Dante meet the hypocrites wearing lead-lined cloaks, see the crucified Caiaphas, and learn from a friar that the demon Malacoda had lied to them about the path forward.
 24. After a difficult climb, Dante and Virgil enter the seventh ditch of thieves, where the sinner Vanni Fucci, tormented by snakes, is restored from ash and delivers a spiteful prophecy to the narrator.
 25. After Vanni Fucci's blasphemy, Dante observes the horrifying punishment of the thieves, who undergo grotesque metamorphoses by merging with and exchanging forms with serpents.
-26. In the ditch of fraudulent counselors, Dante and Virgil listen as the flame-enshrouded Ulysses recounts his final, fatal voyage beyond the known world in pursuit of knowledge.
+26. In the ditch of fraudulent counselors, Dante and Virgil encounter Ulysses, who, from within a flame, recounts how his thirst for knowledge led to his final, fatal voyage beyond the known world.
 27. The soul of Guido da Montefeltro recounts how Pope Boniface VIII coerced him into giving fraudulent counsel with a false promise of absolution, leading directly to his damnation.
 28. In the ninth ditch, Dante witnesses the horrific, continuous mutilation of the sowers of discord, including Muhammad and Bertrand de Born, who explains his punishment as a fitting retribution for his divisive actions.
 29. Dante enters the final ditch of Malebolge, where he speaks with two alchemists, Griffolino and Capocchio, who are punished for their falsifications with a tormenting, scabby disease.

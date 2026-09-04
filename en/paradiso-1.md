@@ -5,7 +5,7 @@
 5. Beatrice explains the sacred nature of vows before ascending with Dante to Mercury, where he is welcomed by joyful souls and asks one to reveal its identity.
 6. The soul of Emperor Justinian recounts the divine history of the Roman eagle, condemns its political misuse, and explains that the spirits in Mercury are those who sought earthly honor.
 7. Beatrice answers Dante's unspoken questions by explaining the divine justice behind the Crucifixion and the necessity of the Incarnation for humanity's redemption and eventual resurrection.
-8. In the sphere of Venus, the narrator met Charles Martel, who explained how divine providence shapes individual natures and why society suffers when people are forced into unsuitable roles.
+8. In the heaven of Venus, Dante meets Charles Martel, who explains that divine providence assigns diverse natures to individuals for society's good, regardless of their family lineage.
 9. In the Heaven of Venus, the souls of Cunizza and Folco joyfully recount their amorous pasts before delivering harsh prophecies against the political and ecclesiastical corruption of Italy and the Church.
 10. Ascending to the Sun, Dante is encircled by a crown of twelve wise souls, from which Thomas Aquinas introduces himself and names each of his brilliant companions.
 11. The Dominican Thomas Aquinas recounts the life of St. Francis of Assisi to Dante to clarify a previous statement, praising him as a champion of the Church before lamenting his own order's decline.

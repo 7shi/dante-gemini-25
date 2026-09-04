@@ -280,7 +280,11 @@ The narrator describes the central part of the divine procession: a triumphal ch
 
 ## Canto 30
 
-The divine procession halts, and Beatrice appears in a cloud of flowers, veiled and dressed in the colors of the theological virtues. Overwhelmed, the narrator turns to speak to Virgil, only to find his guide has vanished. The narrator weeps, and Beatrice sternly rebukes him by name, questioning his worthiness to be there. Her harshness, followed by the angels' song of compassion, causes the narrator to break down in tears of shame. Beatrice then explains to the angels how the narrator strayed from the righteous path after her death, and why this arduous journey was the only way to save him, demanding he show full repentance before he can be cleansed.
+The divine procession halts, and an elder sings a verse from the Song of Solomon, summoning Beatrice. A hundred angels appear on the chariot, singing a welcome and throwing flowers. From within this cloud of flowers, Beatrice appears, veiled and dressed in the colors of the three theological virtues (white, green, and red). Though Dante cannot see her face, his spirit immediately recognizes her and feels the overwhelming power of his former love.
+
+As soon as the narrator feels Beatrice's presence, the old love for her overwhelms him. He turns to tell Virgil, quoting a line from the Aeneid, only to discover that Virgil has vanished. As the narrator weeps for his lost guide, Beatrice addresses him sternly by name, telling him he must weep not for Virgil but for his own sins. She challenges him, asking how he dared to approach the mountain of salvation. Overcome with shame, the narrator looks down, and Beatrice's severe demeanor seems like a mother's harsh pity, meant for his own good.
+
+The angels sing a psalm in pity for Dante, causing his frozen grief to melt into tears. Beatrice then addresses the angels, explaining that she must rebuke Dante so his guilt and grief are equal. She recounts how Dante, though gifted with great potential, strayed from the true path after her death, pursuing false goods despite her attempts to recall him through dreams. His fall was so great that only a journey through Hell could save him, a mission for which she personally recruited Virgil. She concludes that he cannot drink from the river Lethe without first paying the price of tearful repentance.
 
 ## Canto 31
 

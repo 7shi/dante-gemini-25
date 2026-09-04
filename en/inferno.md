@@ -236,7 +236,11 @@ The thief who was transformed into a serpent mockingly addresses the one unchang
 
 ## Canto 26
 
-The narrator and Virgil enter the eighth ditch of the Eighth Circle. The narrator delivers a sarcastic invective against his native Florence, having seen five of its citizens among the thieves. In this new ditch, they see countless individual flames, each concealing a sinner. Virgil explains these are the fraudulent counselors. The narrator's attention is drawn to a twin-tipped flame, which Virgil identifies as containing Ulysses and Diomedes, punished for their deceptions during the Trojan War. At the narrator's request, Virgil addresses the flame, and the soul of Ulysses recounts his final, fatal voyage. Driven by a thirst for knowledge, he sailed past the Pillars of Hercules into the unknown ocean with his aging crew, exhorting them to seek experience. After five months, they sighted the Mountain of Purgatory but were sunk by a divine storm just before reaching it.
+The narrator issues a sarcastic apostrophe to his home city, Florence, shamed to find five of its citizens among the thieves, and prophesies its future suffering. He and Virgil then climb a difficult path to the eighth ditch. Before looking down, the narrator reflects on the need to use his God-given intellect virtuously. He then sees the ditch filled with countless moving flames, which he compares to fireflies in a valley and then to the chariot of Elijah, noting that each flame conceals a sinner.
+
+From a bridge over the eighth ditch, the narrator sees numerous flames concealing the souls of fraudulent counselors. He is particularly intrigued by a twin-horned flame and asks Virgil who is inside. Virgil identifies them as Ulysses and Diomedes, punished for their deceptions during the Trojan War. The narrator eagerly begs to speak with them, and Virgil agrees, but insists on addressing the Greek heroes himself. He calls out to the flame, and its larger horn begins to flicker and speak.
+
+Ulysses recounts his final voyage. He explains how his insatiable desire for knowledge and experience outweighed his love for his son, father, and wife, Penelope. He convinced his small, aging crew to sail beyond the Pillars of Hercules into the unknown ocean with a stirring speech about seeking virtue and knowledge. After five months, they sighted a great mountain (Purgatory), but their joy turned to sorrow as a divine whirlwind struck their ship, spinning it three times before the sea closed over them.
 
 ## Canto 27
 

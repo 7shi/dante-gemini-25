@@ -174,9 +174,19 @@ def save_translation_result(
     segment: int,
     source_lang: str,
     target_lang: str,
-    translation_result: Dict
+    translation_result: Dict,
+    known_records: Dict[tuple, Dict],
+    part_order: Dict[str, int]
 ) -> None:
-    """Save translation result to JSONL file"""
+    """Save translation result to JSONL file.
+
+    known_records holds every record currently in output_file (as of the start of this
+    run, updated as records are added), keyed by (part, chapter, segment). part_order
+    maps each part name to its position in story order (the order of the directories
+    argument). Appending is safe (keeps the file in story order) only when this record
+    is the new last one in that order; otherwise the file must be rewritten in full so
+    it stays sorted.
+    """
     record = {
         "part": part,
         "chapter": chapter,
@@ -185,9 +195,21 @@ def save_translation_result(
         "target_lang": target_lang,
         "response": translation_result
     }
-    
-    with open(output_file, 'a', encoding='utf-8') as f:
-        f.write(json.dumps(record, ensure_ascii=False) + '\n')
+    key = (part, chapter, segment)
+    order_key = (part_order[part], chapter, segment)
+
+    is_new_max = not known_records or order_key > max(
+        (part_order[p], c, s) for p, c, s in known_records
+    )
+    known_records[key] = record
+
+    if is_new_max:
+        with open(output_file, 'a', encoding='utf-8') as f:
+            f.write(json.dumps(record, ensure_ascii=False) + '\n')
+    else:
+        with open(output_file, 'w', encoding='utf-8') as f:
+            for k in sorted(known_records, key=lambda k: (part_order[k[0]], k[1], k[2])):
+                f.write(json.dumps(known_records[k], ensure_ascii=False) + '\n')
 
 def load_chapter_blocks_from_directory(segmentation_file: str, directory: str) -> Dict:
     """Load chapter blocks from directory-based segmentation data"""
@@ -260,7 +282,7 @@ def main():
     parser.add_argument('--proper-nouns', default='proper_nouns/all.tsv',
                        help='Proper nouns dictionary TSV file (default: proper_nouns/all.tsv)')
     parser.add_argument('--limit', type=int,
-                       help='Limit number of chapters to process (for debugging)')
+                       help='Limit number of segment translations to perform this run (for debugging)')
     
     args = parser.parse_args()
     
@@ -288,109 +310,73 @@ def main():
     if not all_data:
         print("No valid directories found.")
         return 1
-    
-    # Initialize context tracking - load summaries from all previously completed chapters across all directories
+
+    # Story order for each part, used to keep the output JSONL sorted on save
+    part_order = {directory_name: idx for idx, (directory_name, _) in enumerate(all_data)}
+    known_records = dict(existing_translations)
+
+    # Single pass over every chapter in story order (directories, then chapters within
+    # each). existing_translations is the full on-disk state loaded up front, and is
+    # updated in place as segments are translated, so it always reflects "what's done so
+    # far" for both already-logged and newly-translated segments. previous_summaries is
+    # built by walking that same order: a chapter already fully logged contributes its
+    # summaries straight from the cache at no cost; a chapter needing translation uses
+    # everything accumulated before it as context, then contributes its own summaries as
+    # they're produced. --limit caps the number of segment translations (LLM calls) made
+    # in this run, not the number of chapters.
     previous_summaries = []
-    
-    # Load existing summaries from all completed segments across all directories
+    translations_done = 0
+
     for directory_name, data in all_data:
+        title = data["title"]
         chapter_blocks = data["chapters"]
-        total_chapters_in_file = len(chapter_blocks)
-        
-        for chapter_num in range(1, total_chapters_in_file + 1):
-            if chapter_num <= len(chapter_blocks):
-                chapter_segments = chapter_blocks[chapter_num - 1]
-                chapter_complete = all(
-                    (directory_name, chapter_num, seg_num) in existing_translations
-                    for seg_num in range(1, len(chapter_segments) + 1)
-                )
-                if chapter_complete:
-                    # Load all summaries from this completed chapter
-                    for seg_num in range(1, len(chapter_segments) + 1):
-                        existing = existing_translations.get((directory_name, chapter_num, seg_num), {})
-                        if existing.get("summary"):
-                            previous_summaries.append(existing["summary"])
-                        elif existing.get("response", {}).get("summary"):
-                            previous_summaries.append(existing["response"]["summary"])
-    
-    # Apply global chapter limit if specified - find next incomplete chapters across all directories
-    global_chapters_to_process = []
-    global_chapters_processed = 0
-    
-    if args.limit:
-        # Collect incomplete chapters across all directories until limit is reached
-        for directory_name, data in all_data:
-            chapter_blocks = data["chapters"]
-            for chapter_num, segments in enumerate(chapter_blocks, 1):
-                # Check if this chapter is already complete
-                chapter_complete = all(
-                    (directory_name, chapter_num, seg_num) in existing_translations
-                    for seg_num in range(1, len(segments) + 1)
-                )
-                if not chapter_complete:
-                    global_chapters_to_process.append((directory_name, data, chapter_num, segments))
-                    global_chapters_processed += 1
-                    if global_chapters_processed >= args.limit:
-                        break
-            if global_chapters_processed >= args.limit:
-                break
-        
-        print(f"Global limit: Processing {len(global_chapters_to_process)} incomplete chapters (limit: {args.limit})")
-    else:
-        # Collect all chapters from all directories
-        for directory_name, data in all_data:
-            chapter_blocks = data["chapters"]
-            for chapter_num, segments in enumerate(chapter_blocks, 1):
-                global_chapters_to_process.append((directory_name, data, chapter_num, segments))
-    
-    # Group chapters by directory for organized processing
-    chapters_by_directory = {}
-    for directory_name, data, chapter_num, segments in global_chapters_to_process:
-        if directory_name not in chapters_by_directory:
-            chapters_by_directory[directory_name] = {'data': data, 'chapters': []}
-        chapters_by_directory[directory_name]['chapters'].append((chapter_num, segments))
-    
-    # Process directories with their selected chapters
-    for directory_name, dir_info in chapters_by_directory.items():
-        title = dir_info['data']["title"]
-        chapter_blocks_to_process = dir_info['chapters']
-        all_chapter_blocks = dir_info['data']["chapters"]
-        
+
         print(f"\nProcessing directory: {directory_name}")
         print(f"Title: {title}")
         print(f"Starting translation: {args.from_lang} -> {args.to_lang}")
-        print(f"Chapters to process: {len(chapter_blocks_to_process)}")
         print("=" * 60)
-        
-        # Store total chapters count in this directory
-        total_chapters_in_file = len(all_chapter_blocks)
-        
-        total_segments = sum(len(segments) for _, segments in chapter_blocks_to_process)
-        processed_segments = 0
-        completed_chapters = set()  # Track chapters that have been fully translated
-        
-        for chapter_num, segments in chapter_blocks_to_process:
+
+        for chapter_num, segments in enumerate(chapter_blocks, 1):
+            chapter_complete = all(
+                (directory_name, chapter_num, seg_num) in existing_translations
+                for seg_num in range(1, len(segments) + 1)
+            )
+            if chapter_complete:
+                for seg_num in range(1, len(segments) + 1):
+                    existing = existing_translations[(directory_name, chapter_num, seg_num)]
+                    if existing.get("summary"):
+                        previous_summaries.append(existing["summary"])
+                    elif existing.get("response", {}).get("summary"):
+                        previous_summaries.append(existing["response"]["summary"])
+                continue
+
+            if args.limit and translations_done >= args.limit:
+                print(f"Limit of {args.limit} translations reached, stopping.")
+                print(f"\nOutput saved to: {args.output}")
+                return 0
+
             print(f"Chapter {chapter_num:2d}: {len(segments)} segments")
-            
+
             for segment_num, segment_text in enumerate(segments, 1):
-                processed_segments += 1
                 segment_key = (directory_name, chapter_num, segment_num)
-                
+
                 # Check if already processed
                 if segment_key in existing_translations:
                     print(f"  Segment {segment_num} → skipped (already processed)")
-                    # Load existing summary for context
                     existing = existing_translations[segment_key]
-                    # Check both old format (summary field) and new format (response.summary)
                     if existing.get("summary"):
                         previous_summaries.append(existing["summary"])
                     elif existing.get("response", {}).get("summary"):
                         previous_summaries.append(existing["response"]["summary"])
                     continue
-                
+
+                if args.limit and translations_done >= args.limit:
+                    print(f"Limit of {args.limit} translations reached, stopping.")
+                    print(f"\nOutput saved to: {args.output}")
+                    return 0
+
                 print(f"  Segment {segment_num} → translating...\n")
-                
-                # Translate segment
+
                 translation_result = translate_segment(
                     segment_text,
                     proper_nouns_dict,
@@ -400,13 +386,11 @@ def main():
                     args.model,
                     bool(args.limit)
                 )
-                
+
                 if translation_result:
-                    # Update context
                     if translation_result.get("summary"):
                         previous_summaries.append(translation_result["summary"])
-                    
-                    # Save result
+
                     save_translation_result(
                         args.output,
                         directory_name,
@@ -414,46 +398,22 @@ def main():
                         segment_num,
                         args.from_lang,
                         args.to_lang,
-                        translation_result
+                        translation_result,
+                        known_records,
+                        part_order
                     )
-                    
-                    # Update existing_translations for chapter completion tracking
+
                     existing_translations[segment_key] = translation_result
-                    
+                    translations_done += 1
+
                     print(" completed")
                 else:
                     print(" failed")
-                
-                # Progress indicator
-                print(f"  Progress: {processed_segments}/{total_segments} segments")
-            
-            # Check if this chapter is fully completed (all segments translated)
-            chapter_segments_completed = all(
-                (directory_name, chapter_num, seg_num) in existing_translations
-                for seg_num in range(1, len(segments) + 1)
-            )
-            if chapter_segments_completed:
-                completed_chapters.add(chapter_num)
-        
-        # Count total completed chapters (including previously translated ones)
-        all_completed_chapters = set()
-        for chapter_num in range(1, total_chapters_in_file + 1):
-            if chapter_num <= len(all_chapter_blocks):
-                chapter_length = len(all_chapter_blocks[chapter_num - 1])
-                if all((directory_name, chapter_num, seg_num) in existing_translations 
-                        for seg_num in range(1, chapter_length + 1)):
-                    all_completed_chapters.add(chapter_num)
-        
-        # Add currently completed chapters
-        all_completed_chapters.update(completed_chapters)
-        
-    
+
     print(f"\nAll translations completed!")
     print(f"Output saved to: {args.output}")
     print(f"Proper nouns dictionary loaded: {len(proper_nouns_dict)} entries")
-    if args.limit:
-        print(f"Global chapter limit applied: {args.limit} chapters processed")
-    
+
     return 0
 
 if __name__ == "__main__":
