@@ -125,7 +125,7 @@ def load_source_chapters() -> Dict[str, List[List[str]]]:
     for part in PARTS:
         data = load_chapter_blocks_from_directory(
             os.path.join(SCRIPT_DIR, "segments", f"{part}.jsonl"),
-            os.path.join(SCRIPT_DIR, part),
+            os.path.join(SCRIPT_DIR, "..", "it", part),
         )
         chapters[part] = data["chapters"]
     return chapters
