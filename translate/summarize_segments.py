@@ -241,7 +241,9 @@ def main() -> int:
     en_summaries = load_existing_summaries(os.path.join(args.output_root, "en.jsonl"))
     ja_summaries = load_existing_summaries(os.path.join(args.output_root, "ja.jsonl"))
 
-    client = Client(model=args.model, show_params=args.segment is not None)
+    # Continuity comes from the explicit `prev` argument, not from history, so
+    # no turn is carried over into the next
+    client = Client(model=args.model, show_params=args.segment is not None, keep_history=False)
 
     def get_source(part: str, chapter_num: int, segment_num: int) -> str:
         return chapters[part][chapter_num - 1][segment_num - 1]
@@ -259,10 +261,7 @@ def main() -> int:
             ja_summaries.get((part, chapter_num, segment_num), ""),
             None, part, chapter_num, segment_num, total_segments,
         )
-        # See the comment above the loop in main() for why this is client.copy()
-        # rather than client() directly.
-        c = client.copy()
-        resp = c(messages, schema=TrilingualSummary)
+        resp = client(messages, schema=TrilingualSummary)
         print(f"\nit: {resp.data.summary_it}")
         print(f"en: {resp.data.summary_en}")
         print(f"ja: {resp.data.summary_ja}")
@@ -295,15 +294,6 @@ def main() -> int:
 
         print(f"{part}: {prefix_len}/{len(keys)} segments already done")
 
-        # Client.__call__ appends every prompt/response to self.history and
-        # resends it on every subsequent call, so calling the shared `client`
-        # directly in this loop would make each segment's request carry the
-        # full transcript of every segment before it - a cost that grows
-        # quadratically over a 376-segment run (this is what previously
-        # blew up token usage to millions of tokens and hit the API rate
-        # limit). Segments are independent and get their continuity from the
-        # explicit `prev` argument, not from conversation history, so each
-        # iteration must call a fresh client.copy() with empty history.
         for i in range(prefix_len, len(keys)):
             chapter_num, segment_num, total_segments = keys[i]
             print(f"{part} {chapter_num:2d}:{segment_num} -> ", end="", flush=True)
@@ -314,8 +304,7 @@ def main() -> int:
                 ja_summaries.get((part, chapter_num, segment_num), ""),
                 prev, part, chapter_num, segment_num, total_segments,
             )
-            c = client.copy()
-            resp = c(messages, schema=TrilingualSummary)
+            resp = client(messages, schema=TrilingualSummary)
 
             it_text = normalize(resp.data.summary_it)
             en_text = normalize(resp.data.summary_en)

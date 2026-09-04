@@ -122,7 +122,8 @@ def main() -> int:
 
     args = parser.parse_args()
 
-    client = Client(model=args.model, show_params=args.segment is not None)
+    # Cantos are independent, so no turn is carried over into the next
+    client = Client(model=args.model, show_params=args.segment is not None, keep_history=False)
 
     def load_part(part: str):
         it_cantos = parse_summary_md(os.path.join(args.output_root, "it", f"{part}.md"))
@@ -138,7 +139,7 @@ def main() -> int:
             print(f"Segment summaries not ready for {part}:{chapter}", file=sys.stderr)
             return 1
         messages = build_messages(part, chapter, it_paras, en_paras, ja_paras)
-        resp = client.copy()(messages, schema=TrilingualOneline)
+        resp = client(messages, schema=TrilingualOneline)
         print(f"\nit: {resp.data.summary_it}")
         print(f"en: {resp.data.summary_en}")
         print(f"ja: {resp.data.summary_ja}")
@@ -177,8 +178,7 @@ def main() -> int:
 
             print(f"{part} {chapter:2d} -> ", end="", flush=True)
             messages = build_messages(part, chapter, it_paras, en_paras, ja_paras)
-            c = client.copy()
-            resp = c(messages, schema=TrilingualOneline)
+            resp = client(messages, schema=TrilingualOneline)
 
             it_text = normalize(resp.data.summary_it)
             en_text = normalize(resp.data.summary_en)

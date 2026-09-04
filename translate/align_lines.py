@@ -71,19 +71,12 @@ def align_segment(
     source_lang: str,
     target_lang: str,
 ) -> str:
-    # Client.__call__ appends every prompt/response to self.history and resends
-    # it on every subsequent call, so calling the shared client directly here
-    # would make each segment's request carry the full transcript of every
-    # segment before it - a cost that grows quadratically over a long run.
-    # Segments are independent, so copy() gives each one a fresh, empty-history
-    # client and the growth never happens.
-    c = client.copy()
     messages = [
         f"[Source text in {source_lang}, one numbered line per line]\n{number_lines(source_lines)}",
         f"[Existing {target_lang} translation of the text above]\n{translation}",
         INSTRUCTIONS.format(target_lang=target_lang),
     ]
-    return c(messages).text.strip()
+    return client(messages).text.strip()
 
 
 DRIFT_LIMIT = 0.05
@@ -189,7 +182,8 @@ def main() -> int:
                 targets.append(key)
         targets.sort(key=lambda k: (PARTS.index(k[0]) if k[0] in PARTS else 99, k[1], k[2]))
 
-    client = Client(model=args.model, show_params=len(targets) == 1)
+    # Segments are independent, so no turn is carried over into the next
+    client = Client(model=args.model, show_params=len(targets) == 1, keep_history=False)
 
     violations: List[Tuple[str, int, int, List[str], float]] = []
     processed = 0
