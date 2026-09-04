@@ -11,7 +11,7 @@ help:
 	@echo "  deploy           Build and publish dist/ to the gh-pages branch"
 	@echo "  release          Package en.jsonl/ja.jsonl/images into release/*.zip"
 	@echo ""
-	@echo "For the translation pipeline (convert/summarize1/check/...), see it/README.md."
+	@echo "For the translation pipeline (convert/summarize1/check/...), see translate/README.md."
 
 clean-dist:
 	rm -rf dist

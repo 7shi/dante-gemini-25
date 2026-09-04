@@ -54,7 +54,7 @@ def count_translation_lines(translation_text):
 def count_lines_from_txt(part, chapter):
     """Count lines from original txt file."""
     try:
-        txt_file = Path(part) / f"{chapter:02d}.txt"
+        txt_file = Path('..') / 'it' / part / f"{chapter:02d}.txt"
         with open(txt_file, 'r', encoding='utf-8') as f:
             return sum(1 for _ in f)
     except Exception:
