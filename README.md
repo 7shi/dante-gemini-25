@@ -65,6 +65,8 @@ Re-run `make -C translate convert` / `make -C translate summarize1` afterward to
 
 See [images/README.md](images/README.md) for the pipeline that generates chapter illustrations from the English translations above using Gemini's image generation.
 
+The generated image data is distributed separately via [Releases](https://github.com/7shi/dante-gemini-25/releases) (along with `en.jsonl` and `ja.jsonl`).
+
 ## Translation Quality
 
 The translation data has been segmented to match the Italian source text structure. `make -C translate check` validates that every segment's line count matches across Italian, English, and Japanese versions.
