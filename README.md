@@ -6,6 +6,8 @@ This project translates Dante's Divine Comedy from Italian to English and Japane
 
 Original Italian text from [Project Gutenberg](https://www.gutenberg.org/ebooks/1000).
 
+See [it/README.md](it/README.md) for the pipeline that turns this source text into the per-segment JSONL files consumed below.
+
 ## Output Structure
 
 The converter generates the following directory structure for each language:
@@ -50,13 +52,9 @@ Re-run `make convert` / `make summarize1` afterward to propagate the fix into th
 
 ## Translation Quality
 
-The translation data has been segmented to match the Italian source text structure. However, validation shows some discrepancies:
+The translation data has been segmented to match the Italian source text structure. `make check` validates that every segment's line count matches across Italian, English, and Japanese versions.
 
-- **Overall accuracy**: 88.3% of segments (326/369) have matching line counts across Italian, English, and Japanese versions
-- **Data completeness**: Some segments contain incomplete translations (showing as single-line outputs), which may indicate LLM generation issues
-- **Minor variations**: Most discrepancies are 1-2 line differences, typical for cross-language translation
-
-Use `make check` to validate segment line count consistency across languages.
+A segment occasionally comes back from `translate_segments.py` with the wrong line count - anything from a couple of lines off to the whole segment collapsed into one line of prose. `it/align_lines.py` fixes this without re-translating: see [it/README.md](it/README.md#fix-up-tools).
 
 ## License
 
