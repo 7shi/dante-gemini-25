@@ -71,6 +71,12 @@ def align_segment(
     source_lang: str,
     target_lang: str,
 ) -> str:
+    # Client.__call__ appends every prompt/response to self.history and resends
+    # it on every subsequent call, so calling the shared client directly here
+    # would make each segment's request carry the full transcript of every
+    # segment before it - a cost that grows quadratically over a long run.
+    # Segments are independent, so copy() gives each one a fresh, empty-history
+    # client and the growth never happens.
     c = client.copy()
     messages = [
         f"[Source text in {source_lang}, one numbered line per line]\n{number_lines(source_lines)}",
