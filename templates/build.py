@@ -23,6 +23,8 @@ from pathlib import Path
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
+from common.canto_md import parse_summary_md
+
 ROOT = Path(__file__).parent.parent
 TEMPLATES_DIR = ROOT / "templates"
 STATIC_DIR = TEMPLATES_DIR / "static"
@@ -77,28 +79,30 @@ def load_canto_lines(part: str, number: int) -> list[tuple[int, str, str, str]]:
     return list(zip(range(1, n + 1), it_lines, en_lines, ja_lines))
 
 
-def split_cantos(filepath: Path) -> dict[int, str]:
-    """Split a {part}.md file at each `## Canto N` heading."""
-    text = filepath.read_text(encoding="utf-8")
-    chunks = re.split(r"^## Canto (\d+)$", text, flags=re.MULTILINE)[1:]
-    return {int(chunks[i]): chunks[i + 1].strip("\n") for i in range(0, len(chunks), 2)}
-
-
-def paragraphs(body: str) -> list[str]:
-    return [p.strip() for p in re.split(r"\n\s*\n", body.strip()) if p.strip()]
-
-
 def load_segment_summaries(part: str) -> dict[int, list[tuple[str, str]]]:
     """Return canto -> [(en_paragraph, ja_paragraph), ...]."""
-    en_cantos = split_cantos(ROOT / "en" / f"{part}.md")
-    ja_cantos = split_cantos(ROOT / "ja" / f"{part}.md")
+    it_cantos = parse_summary_md(ROOT / "it" / f"{part}.md")
+    en_cantos = parse_summary_md(ROOT / "en" / f"{part}.md")
+    ja_cantos = parse_summary_md(ROOT / "ja" / f"{part}.md")
+
+    total = count_cantos(part)
+    expected = set(range(1, total + 1))
+    for lang, cantos in (("it", it_cantos), ("en", en_cantos), ("ja", ja_cantos)):
+        missing = sorted(expected - cantos.keys())
+        if missing:
+            raise SystemExit(
+                f"{lang}/{part}.md is missing canto(s) {missing} (expected 1..{total}). "
+                f"Run 'make -C translate summarize' to finish generating it."
+            )
+
     result = {}
-    for number, en_body in en_cantos.items():
-        ja_body = ja_cantos.get(number, "")
-        en_paras = paragraphs(en_body)
-        ja_paras = paragraphs(ja_body)
-        if len(en_paras) != len(ja_paras):
-            print(f"Warning: summary paragraph count mismatch in {part} canto {number}")
+    for number in sorted(expected):
+        it_paras, en_paras, ja_paras = it_cantos[number], en_cantos[number], ja_cantos[number]
+        if len({len(it_paras), len(en_paras), len(ja_paras)}) != 1:
+            print(
+                f"Warning: summary paragraph count mismatch in {part} canto {number} "
+                f"(it={len(it_paras)}, en={len(en_paras)}, ja={len(ja_paras)})"
+            )
         result[number] = list(zip(en_paras, ja_paras))
     return result
 

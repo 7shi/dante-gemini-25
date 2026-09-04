@@ -15,6 +15,10 @@ Original Italian text from [Project Gutenberg](https://www.gutenberg.org/ebooks/
 
 See [it/README.md](it/README.md) and [translate/README.md](translate/README.md) for the pipeline that turns this source text into the per-segment JSONL files consumed below.
 
+## Shared Code
+
+[`common/`](common/) holds Python modules shared between `templates/build.py` and the `translate/` pipeline (e.g. reading/writing the `{part}.md` summary format). It's an installable package (see `[build-system]` / `[tool.hatch.build.targets.wheel]` in `pyproject.toml`), so after `uv sync` it's importable as `common.<module>` from any directory in the project, no path juggling needed.
+
 ## Output Structure
 
 The converter generates the following directory structure for each language:
