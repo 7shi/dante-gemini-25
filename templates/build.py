@@ -16,14 +16,13 @@ translation fixes are made directly in the expanded files (see README.md).
 
 from __future__ import annotations
 
-import re
 import shutil
 from dataclasses import dataclass, field
 from pathlib import Path
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
-from common.canto_md import parse_summary_md
+from common.canto_md import parse_oneline_md, parse_summary_md
 
 ROOT = Path(__file__).parent.parent
 TEMPLATES_DIR = ROOT / "templates"
@@ -111,13 +110,8 @@ def load_oneline(part: str) -> dict[int, dict[str, str]]:
     """Return canto -> {"en": text, "ja": text} from {part}-1.md."""
     result: dict[int, dict[str, str]] = {}
     for lang in ("en", "ja"):
-        path = ROOT / lang / f"{part}-1.md"
-        for line in path.read_text(encoding="utf-8").splitlines():
-            m = re.match(r"(\d+)\.\s+(.*)$", line.strip())
-            if not m:
-                continue
-            number = int(m.group(1))
-            result.setdefault(number, {})[lang] = m.group(2)
+        for number, text in parse_oneline_md(ROOT / lang / f"{part}-1.md").items():
+            result.setdefault(number, {})[lang] = text
     return result
 
 

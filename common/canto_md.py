@@ -1,12 +1,8 @@
-"""Shared read/write helpers for the `{part}.md` per-canto summary files
-(`it/{part}.md`, `en/{part}.md`, `ja/{part}.md`).
-
-Format: a `## Canto N` heading, blank line, then one blank-line-separated
-paragraph per segment, in segment order; no H1, no front matter. Consumed by
-`templates/build.py` (site build) and `translate/summarize_segments.py`
-(generation), and needed again by a future `summarize1.py` once it derives
-per-canto one-liners from these segment paragraphs instead of from
-`en.jsonl`/`ja.jsonl`.
+"""Shared read/write helpers for the per-canto summary markdown files:
+`{part}.md` (`it/`, `en/`, `ja/` - one paragraph per segment) and
+`{part}-1.md` (one line per canto). Consumed by `templates/build.py` (site
+build) and `translate/summarize_segments.py` / `translate/summarize1.py`
+(generation).
 """
 
 import re
@@ -50,3 +46,19 @@ def format_summary_md(chapters: Dict[int, List[str]]) -> str:
             lines.append("")
             lines.append(paragraph)
     return "\n".join(lines) + "\n"
+
+
+ONELINE_RE = re.compile(r"^(\d+)\.\s+(.*)$")
+
+
+def parse_oneline_md(path: Union[str, Path]) -> Dict[int, str]:
+    """chapter -> one-line summary, from a {part}-1.md file. Returns {} if the file doesn't exist."""
+    path = Path(path)
+    if not path.exists():
+        return {}
+    result = {}
+    for line in path.read_text(encoding="utf-8").splitlines():
+        m = ONELINE_RE.match(line.strip())
+        if m:
+            result[int(m.group(1))] = m.group(2)
+    return result

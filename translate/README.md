@@ -3,8 +3,8 @@
 This directory holds the pipeline that turns the per-canto Italian text in
 [`../it/`](../it/README.md) into the per-segment JSONL files
 (`inferno.jsonl`, `purgatorio.jsonl`, `paradiso.jsonl`) and, from those, into
-the root `en.jsonl` / `ja.jsonl` translations, consumed by `convert.py` and
-`summarize1.py`, which also live here.
+the root `en.jsonl` / `ja.jsonl` translations, consumed by `convert.py`,
+which also lives here.
 
 ## Pipeline
 
@@ -94,10 +94,27 @@ below with the old mismatched ones, so don't.
   `make summarize` runs it for all three parts; `make summarize-reset`
   deletes the six `.md` files so the next `summarize` starts over.
 
-  Out of scope for now: the one-line-per-canto summaries in `{part}-1.md`
-  (still generated from `en.jsonl`/`ja.jsonl` by `summarize1.py`) and an
-  Italian column on the site's summary pages (`templates/build.py` doesn't
-  read `../it/{part}.md` yet).
+- **`summarize1.py`** - Regenerates `../it/{part}-1.md`, `../en/{part}-1.md`
+  and `../ja/{part}-1.md`, one line per canto, as a matched trilingual set:
+  for each canto it reads that canto's already-matched it/en/ja segment
+  summaries from `summarize_segments.py`'s `{part}.md` output and asks the
+  model, in one call, for a one-line summary of the whole canto in all
+  three languages - grounded only in those segment summaries, with no old
+  one-line summary fed in as context. Cantos whose segment summaries
+  aren't generated yet are skipped rather than erroring, so this can run
+  incrementally alongside `summarize`.
+
+  ```
+  uv run summarize1.py -m openai:gpt-5.6-terra
+  uv run summarize1.py -m openai:gpt-5.6-terra -s inferno:1
+  ```
+
+  `make summarize1` runs it for all three parts; `make summarize1-reset`
+  deletes the six `-1.md` files so the next `summarize1` starts over.
+
+  Out of scope for now: an Italian column on the site's summary pages
+  (`templates/build.py` doesn't read `../it/{part}.md` or
+  `../it/{part}-1.md` yet).
 
 ## Other files
 
@@ -108,7 +125,5 @@ below with the old mismatched ones, so don't.
   (see the root [README.md](../README.md#output-structure)). Run via
   `make convert` in this directory. (Its `{part}.md` output is superseded by
   `summarize_segments.py` - see above.)
-- `summarize1.py` - Generates `{part}-1.md`, one-sentence-per-canto
-  summaries, from `en.jsonl`/`ja.jsonl`. Run via `make summarize1`.
 - `check.py` - Validates that every segment's line count matches across the
   Italian source, `../en.jsonl`, and `../ja.jsonl`. Run via `make check`.

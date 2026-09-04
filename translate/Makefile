@@ -1,7 +1,7 @@
 .PHONY: help segment1 segment2 segment3 \
         translate-en translate-ja align align-en align-ja \
-        convert convert-en convert-ja summarize1 summarize1-en summarize1-ja \
-        summarize summarize-reset \
+        convert convert-en convert-ja \
+        summarize summarize-reset summarize1 summarize1-reset \
         check
 
 help:
@@ -17,15 +17,14 @@ help:
 	@echo "  convert          Expand ../en.jsonl and ../ja.jsonl into ../en/ and ../ja/"
 	@echo "  convert-en       Expand ../en.jsonl into ../en/"
 	@echo "  convert-ja       Expand ../ja.jsonl into ../ja/"
-	@echo "  summarize1       Generate one-line summaries (../en/ + ../ja/, LLM)"
-	@echo "  summarize1-en    Generate one-line summaries from ../en.jsonl into ../en/"
-	@echo "  summarize1-ja    Generate one-line summaries from ../ja.jsonl into ../ja/"
 	@echo "  summarize        Regenerate ../it/../en/../ja/*.md as a matched trilingual set (LLM)"
 	@echo "  summarize-reset  Delete the *.md summaries so 'summarize' starts over"
+	@echo "  summarize1       Regenerate ../it/../en/../ja/*-1.md as a matched trilingual set (LLM)"
+	@echo "  summarize1-reset Delete the *-1.md summaries so 'summarize1' starts over"
 	@echo "  check            Check segment line counts match across it/en/ja"
 	@echo ""
-	@echo "convert/summarize1 overwrite the hand-edited ../en/ and ../ja/ trees."
-	@echo "summarize is resumable: interrupt and re-run to continue where it left off."
+	@echo "convert overwrites the hand-edited ../en/ and ../ja/ translation .txt files."
+	@echo "summarize/summarize1 are resumable: interrupt and re-run to continue where left off."
 
 SEGMENT = uv run segment_chapters.py -m gemini-2.5-pro
 
@@ -54,18 +53,14 @@ align-en:
 align-ja:
 	uv run align_lines.py ../ja.jsonl -m $(ALIGN_MODEL)
 
-# convert/summarize1 regenerate ../en/ and ../ja/ from the JSONL, overwriting
-# any hand-fix made directly in those expanded files. Run deliberately.
+# convert regenerates ../en/ and ../ja/'s translation .txt files from the
+# JSONL, overwriting any hand-fix made directly in those files. Run
+# deliberately.
 
 convert: convert-en convert-ja
 
 convert-en convert-ja: convert-%: ../%.jsonl
 	uv run convert.py $< --output-dir ../$*
-
-summarize1: summarize1-en summarize1-ja
-
-summarize1-en summarize1-ja: summarize1-%: ../%.jsonl
-	uv run summarize1.py -m gemini-2.5-pro $< --output-dir ../$*
 
 SUMMARIZE_MODEL = openai:gpt-5.6-terra
 
@@ -80,6 +75,18 @@ summarize-reset:
 	rm -f ../it/inferno.md ../it/purgatorio.md ../it/paradiso.md \
 	      ../en/inferno.md ../en/purgatorio.md ../en/paradiso.md \
 	      ../ja/inferno.md ../ja/purgatorio.md ../ja/paradiso.md
+
+# summarize1.py derives one-line-per-canto summaries from summarize's
+# {part}.md segment summaries (not from the JSONL), one canto at a time as a
+# matched trilingual set. Cantos summarize hasn't reached yet are skipped and
+# picked up on a later run.
+summarize1:
+	uv run summarize1.py -m $(SUMMARIZE_MODEL)
+
+summarize1-reset:
+	rm -f ../it/inferno-1.md ../it/purgatorio-1.md ../it/paradiso-1.md \
+	      ../en/inferno-1.md ../en/purgatorio-1.md ../en/paradiso-1.md \
+	      ../ja/inferno-1.md ../ja/purgatorio-1.md ../ja/paradiso-1.md
 
 check:
 	uv run check.py
