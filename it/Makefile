@@ -24,3 +24,14 @@ translate-en:
 	$(TRANSLATE) -o ../en.jsonl inferno purgatorio paradiso -f Italian -t English
 translate-ja:
 	$(TRANSLATE) -o ../ja.jsonl inferno purgatorio paradiso -f Italian -t Japanese
+
+ALIGN_MODEL = openai:gpt-5.6-terra
+
+# align_lines.py fixes only the segments whose line count doesn't match the
+# source; re-run after a translate pass to detect and reflow the mismatches.
+align: align-en align-ja
+
+align-en:
+	uv run align_lines.py ../en.jsonl -m $(ALIGN_MODEL)
+align-ja:
+	uv run align_lines.py ../ja.jsonl -m $(ALIGN_MODEL)
