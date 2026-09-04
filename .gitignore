@@ -6,6 +6,9 @@ dist/
 wheels/
 *.egg-info
 
+# Temporary worktree for gh-pages deployment
+.gh-pages-worktree/
+
 # Virtual environments
 .venv
 

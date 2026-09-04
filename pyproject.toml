@@ -7,6 +7,7 @@ requires-python = ">=3.10"
 repository = "https://github.com/7shi/dante-gemini-25"
 
 dependencies = [
+    "jinja2",
     "llm7shi",
     "pillow>=12.3.0",
     "sixel>=0.2.0",

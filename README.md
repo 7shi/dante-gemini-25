@@ -2,6 +2,13 @@
 
 This project translates Dante's Divine Comedy from Italian to English and Japanese using Google's Gemini 2.5 Pro model. Unlike previous multilingual explorations, this project focuses specifically on English and Japanese translations.
 
+**[Read online](https://7shi.github.io/dante-gemini-25/)** — each canto as a line-by-line Italian/English/Japanese page, plus a per-canticle summary page (Inferno/Purgatorio/Paradiso) with English/Japanese segment summaries side by side.
+
+> [!NOTE]
+> All translations in this repository are machine-generated (Gemini 2.5 Pro) and have not been reviewed or corrected by a human translator.
+> Errors and mistranslations are present throughout.
+> These files are provided as-is for reference and study purposes only.
+
 ## Source Text
 
 Original Italian text from [Project Gutenberg](https://www.gutenberg.org/ebooks/1000).
@@ -59,6 +66,12 @@ See [images/README.md](images/README.md) for the pipeline that generates chapter
 The translation data has been segmented to match the Italian source text structure. `make check` validates that every segment's line count matches across Italian, English, and Japanese versions.
 
 A segment occasionally comes back from `translate_segments.py` with the wrong line count - anything from a couple of lines off to the whole segment collapsed into one line of prose. `it/align_lines.py` fixes this without re-translating: see [it/README.md](it/README.md#fix-up-tools).
+
+## Build and deploy
+
+See [templates/README.md](templates/README.md) for the build/deploy steps.
+
+The site is built directly from the expanded `en/` and `ja/` files (not from `en.jsonl` / `ja.jsonl`), since translation fixes are made in those expanded files directly. Re-running `make convert` / `make summarize1` regenerates `en/` / `ja/` from the jsonl and would overwrite any such fix.
 
 ## Related Previous Projects
 
