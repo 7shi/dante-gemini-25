@@ -17,8 +17,9 @@
 
                 <img src="{{ base }}images/{{ part_key }}/{{ "%02d"|format(canto.number) }}.jpg" alt="" class="header-image">
 
-                {% if canto.oneline_en or canto.oneline_ja %}
+                {% if canto.oneline_it or canto.oneline_en or canto.oneline_ja %}
                 <p class="oneline">
+                    <span lang="it">{{ canto.oneline_it }}</span>
                     <span lang="en">{{ canto.oneline_en }}</span>
                     <span lang="ja">{{ canto.oneline_ja }}</span>
                 </p>

@@ -268,6 +268,9 @@ ul.canto-row a.active {
 /* one-line summary */
 
 .oneline {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    column-gap: 1.5rem;
     background: var(--code-bg);
     border-radius: 8px;
     padding: 0.75rem 1rem;
@@ -275,16 +278,16 @@ ul.canto-row a.active {
     font-size: 0.95rem;
 }
 
-.oneline span {
-    display: block;
-}
-
-.oneline span[lang="en"] {
-    margin-bottom: 0.3rem;
-}
-
+.oneline span[lang="it"],
 .oneline span[lang="ja"] {
     color: var(--fg);
+}
+
+@media (max-width: 700px) {
+    .oneline {
+        grid-template-columns: 1fr;
+        row-gap: 0.3rem;
+    }
 }
 
 /* trilingual line-by-line canto text */
@@ -372,7 +375,7 @@ ul.canto-row a.active {
 
 .summary-pair {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr;
     column-gap: 1.5rem;
     margin-bottom: 0.75rem;
 }
@@ -381,6 +384,7 @@ ul.canto-row a.active {
     margin: 0;
 }
 
+.summary-pair p[lang="it"],
 .summary-pair p[lang="ja"] {
     color: var(--fg);
 }

@@ -41,6 +41,7 @@ class Canto:
     part: str
     number: int
     lines: list[tuple[int, str, str, str]] = field(default_factory=list)  # (lineno, it, en, ja)
+    oneline_it: str = ""
     oneline_en: str = ""
     oneline_ja: str = ""
     is_last: bool = False
@@ -78,8 +79,8 @@ def load_canto_lines(part: str, number: int) -> list[tuple[int, str, str, str]]:
     return list(zip(range(1, n + 1), it_lines, en_lines, ja_lines))
 
 
-def load_segment_summaries(part: str) -> dict[int, list[tuple[str, str]]]:
-    """Return canto -> [(en_paragraph, ja_paragraph), ...]."""
+def load_segment_summaries(part: str) -> dict[int, list[tuple[str, str, str]]]:
+    """Return canto -> [(it_paragraph, en_paragraph, ja_paragraph), ...]."""
     it_cantos = parse_summary_md(ROOT / "it" / f"{part}.md")
     en_cantos = parse_summary_md(ROOT / "en" / f"{part}.md")
     ja_cantos = parse_summary_md(ROOT / "ja" / f"{part}.md")
@@ -102,14 +103,14 @@ def load_segment_summaries(part: str) -> dict[int, list[tuple[str, str]]]:
                 f"Warning: summary paragraph count mismatch in {part} canto {number} "
                 f"(it={len(it_paras)}, en={len(en_paras)}, ja={len(ja_paras)})"
             )
-        result[number] = list(zip(en_paras, ja_paras))
+        result[number] = list(zip(it_paras, en_paras, ja_paras))
     return result
 
 
 def load_oneline(part: str) -> dict[int, dict[str, str]]:
-    """Return canto -> {"en": text, "ja": text} from {part}-1.md."""
+    """Return canto -> {"it": text, "en": text, "ja": text} from {part}-1.md."""
     result: dict[int, dict[str, str]] = {}
-    for lang in ("en", "ja"):
+    for lang in ("it", "en", "ja"):
         for number, text in parse_oneline_md(ROOT / lang / f"{part}-1.md").items():
             result.setdefault(number, {})[lang] = text
     return result
@@ -132,6 +133,7 @@ def load_part_cantos(part: str) -> list[Canto]:
             part=part,
             number=number,
             lines=load_canto_lines(part, number),
+            oneline_it=onelines.get(number, {}).get("it", ""),
             oneline_en=onelines.get(number, {}).get("en", ""),
             oneline_ja=onelines.get(number, {}).get("ja", ""),
             is_last=(number == total),
