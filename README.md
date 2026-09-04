@@ -60,10 +60,6 @@ The translation data has been segmented to match the Italian source text structu
 
 A segment occasionally comes back from `translate_segments.py` with the wrong line count - anything from a couple of lines off to the whole segment collapsed into one line of prose. `it/align_lines.py` fixes this without re-translating: see [it/README.md](it/README.md#fix-up-tools).
 
-## License
-
-Script files are released under CC0 (public domain). However, Gemini's outputs are subject to [Gemini API Additional Terms of Service](https://ai.google.dev/gemini-api/terms), which prohibit use for machine learning training purposes. No LICENSE file is intentionally provided to avoid potential misunderstanding about the restrictions on AI-generated content.
-
 ## Related Previous Projects
 
 - [dante-gemini](https://github.com/7shi/dante-gemini) - A multilingual exploration of Dante's Divine Comedy using Gemini 1.0 Pro, featuring detailed linguistic analysis of the opening lines in Italian, English, Hindi, Chinese, Ancient Greek, Arabic, Bengali and other languages with word-by-word breakdowns, grammatical details, and etymologies.
