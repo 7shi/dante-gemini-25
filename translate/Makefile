@@ -1,6 +1,7 @@
 .PHONY: help segment1 segment2 segment3 \
         translate-en translate-ja align align-en align-ja \
         convert convert-en convert-ja summarize1 summarize1-en summarize1-ja \
+        summarize summarize-reset \
         check
 
 help:
@@ -19,9 +20,12 @@ help:
 	@echo "  summarize1       Generate one-line summaries (../en/ + ../ja/, LLM)"
 	@echo "  summarize1-en    Generate one-line summaries from ../en.jsonl into ../en/"
 	@echo "  summarize1-ja    Generate one-line summaries from ../ja.jsonl into ../ja/"
+	@echo "  summarize        Regenerate ../it/../en/../ja/*.md as a matched trilingual set (LLM)"
+	@echo "  summarize-reset  Delete the *.md summaries so 'summarize' starts over"
 	@echo "  check            Check segment line counts match across it/en/ja"
 	@echo ""
 	@echo "convert/summarize1 overwrite the hand-edited ../en/ and ../ja/ trees."
+	@echo "summarize is resumable: interrupt and re-run to continue where it left off."
 
 SEGMENT = uv run segment_chapters.py -m gemini-2.5-pro
 
@@ -62,6 +66,20 @@ summarize1: summarize1-en summarize1-ja
 
 summarize1-en summarize1-ja: summarize1-%: ../%.jsonl
 	uv run summarize1.py -m gemini-2.5-pro $< --output-dir ../$*
+
+SUMMARIZE_MODEL = openai:gpt-5.6-terra
+
+# summarize_segments.py regenerates ../it/../en/../ja/{part}.md from scratch as
+# a matched trilingual set, replacing the old (mismatched) en/ja-only summaries
+# expanded by convert.py. Resumable: it reads back whatever's already in those
+# files and continues from there, so an interrupted run just needs a re-run.
+summarize:
+	uv run summarize_segments.py -m $(SUMMARIZE_MODEL)
+
+summarize-reset:
+	rm -f ../it/inferno.md ../it/purgatorio.md ../it/paradiso.md \
+	      ../en/inferno.md ../en/purgatorio.md ../en/paradiso.md \
+	      ../ja/inferno.md ../ja/purgatorio.md ../ja/paradiso.md
 
 check:
 	uv run check.py
