@@ -36,8 +36,14 @@ def extract_chapter_content(filename):
     
     return content_lines, line_mapping
 
-def save_segmentation_to_jsonl(chapter_num, result, content_lines, line_mapping, output_file, filename):
-    """Convert chapter-relative line numbers to file-global line numbers and save in JSONL format"""
+def save_segmentation_to_jsonl(chapter_num, result, content_lines, line_mapping, output_file, filename, known_chapters):
+    """Convert chapter-relative line numbers to file-global line numbers and save in JSONL format.
+
+    known_chapters holds the chapter numbers already present in output_file (as of the
+    start of this run, updated as records are added). Appending is safe (keeps the file
+    sorted) only when chapter_num is larger than every chapter already recorded; otherwise
+    the file must be rewritten in full so it stays sorted by chapter.
+    """
     if not (result and 'segment_boundaries' in result and result['segment_boundaries']):
         return
     
@@ -66,12 +72,31 @@ def save_segmentation_to_jsonl(chapter_num, result, content_lines, line_mapping,
         "boundaries": boundaries,
         "response": result
     }
-    
-    # Append to JSONL file
-    with open(output_file, 'a', encoding='utf-8') as f:
-        f.write(json.dumps(record, ensure_ascii=False) + '\n')
 
-def segment_chapter(chapter_num, content_lines, model, threshold, line_mapping, output_file, filename, show_params):
+    if not known_chapters or chapter_num > max(known_chapters):
+        # Appending keeps the file sorted since this chapter is the new highest
+        with open(output_file, 'a', encoding='utf-8') as f:
+            f.write(json.dumps(record, ensure_ascii=False) + '\n')
+    else:
+        # Inserting into the middle (or replacing an existing chapter): rewrite the
+        # whole file so it stays sorted by chapter
+        records = {}
+        if os.path.exists(output_file):
+            with open(output_file, 'r', encoding='utf-8') as f:
+                for line in f:
+                    line = line.strip()
+                    if line:
+                        existing = json.loads(line)
+                        records[existing['chapter']] = existing
+        records[chapter_num] = record
+
+        with open(output_file, 'w', encoding='utf-8') as f:
+            for num in sorted(records):
+                f.write(json.dumps(records[num], ensure_ascii=False) + '\n')
+
+    known_chapters.add(chapter_num)
+
+def segment_chapter(chapter_num, content_lines, model, threshold, line_mapping, output_file, filename, show_params, known_chapters):
     """Segment chapter using LLM"""
     
     if len(content_lines) < threshold:
@@ -123,7 +148,7 @@ Example: To split at line 15, specify 15 as boundary (line 15 becomes start of n
                 segmentation_data = json.loads(result.text)
                 # Save segmentation result to file  
                 if output_file:
-                    save_segmentation_to_jsonl(chapter_num, segmentation_data, content_lines, line_mapping, output_file, filename)
+                    save_segmentation_to_jsonl(chapter_num, segmentation_data, content_lines, line_mapping, output_file, filename, known_chapters)
                 return segmentation_data
             except json.JSONDecodeError as e:
                 print(f"  DEBUG: Failed to parse JSON: {e}")
@@ -135,18 +160,30 @@ Example: To split at line 15, specify 15 as boundary (line 15 becomes start of n
         print(f"Error segmenting chapter {chapter_num}: {e}")
         return None
 
+def load_segmented_chapters(output_file):
+    """Return the set of chapter numbers already recorded in output_file"""
+    chapters = set()
+    if output_file and os.path.exists(output_file):
+        with open(output_file, 'r', encoding='utf-8') as f:
+            for line in f:
+                line = line.strip()
+                if line:
+                    chapters.add(json.loads(line)['chapter'])
+    return chapters
+
 def create_translation_chunks(directory, model, output_file, limit=None):
     """Analyze all chapters from individual files and create translation chunks"""
-    
+
     # Get all .txt files in the directory and sort them
     chapter_files = sorted(glob.glob(os.path.join(directory, '*.txt')))
-    
+
     if not chapter_files:
         raise FileNotFoundError(f"No .txt files found in directory '{directory}'")
-    
+
     translation_chunks = []
     threshold = 25
-    
+    already_segmented = load_segmented_chapters(output_file)
+
     # Apply limit if specified
     if limit:
         chapter_files = chapter_files[:limit]
@@ -154,16 +191,20 @@ def create_translation_chunks(directory, model, output_file, limit=None):
     else:
         print(f"Starting translation chunk creation (threshold: {threshold} lines)")
     print("=" * 60)
-    
+
     for i, chapter_file in enumerate(chapter_files, 1):
         chapter_num = int(os.path.basename(chapter_file).replace('.txt', ''))
-        
+
+        if chapter_num in already_segmented:
+            print(f"Chapter {chapter_num:2d}: already segmented → skipping")
+            continue
+
         # Extract content from single chapter file
         chunk_content, line_mapping = extract_chapter_content(chapter_file)
         content_lines = len(chunk_content)
-        
+
         print(f"Chapter {chapter_num:2d}: {content_lines:2d} lines ", end="")
-        
+
         if content_lines < threshold:
             # add as-is as translation chunk
             translation_chunks.append({
@@ -177,9 +218,9 @@ def create_translation_chunks(directory, model, output_file, limit=None):
             print("→ translate as-is")
         else:
             # segment using LLM
-            print("→ segmenting...", end="")
+            print("→ segmenting...")
             
-            segmentation = segment_chapter(chapter_num, chunk_content, model, threshold, line_mapping, output_file, chapter_file, bool(limit))
+            segmentation = segment_chapter(chapter_num, chunk_content, model, threshold, line_mapping, output_file, chapter_file, bool(limit), already_segmented)
             
             if segmentation and 'segment_boundaries' in segmentation and segmentation['segment_boundaries']:
                 # split into segments
@@ -251,7 +292,8 @@ def main():
         
         print(f"\nTranslation preparation completed!")
         print(f"Total chunks: {len(chunks)}")
-        print(f"Average lines: {sum(c['lines'] for c in chunks) / len(chunks):.1f} lines")
+        if chunks:
+            print(f"Average lines: {sum(c['lines'] for c in chunks) / len(chunks):.1f} lines")
         
     except Exception as e:
         print(f"Error: {e}")
