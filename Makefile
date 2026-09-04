@@ -1,4 +1,4 @@
-.PHONY: help clean-dist build images serve deploy
+.PHONY: help clean-dist build images serve deploy release
 
 help:
 	@echo "Usage: make <target>"
@@ -9,6 +9,7 @@ help:
 	@echo "  images           Compress images/ illustrations into dist/images/"
 	@echo "  serve            Serve dist/ locally at http://localhost:8000"
 	@echo "  deploy           Build and publish dist/ to the gh-pages branch"
+	@echo "  release          Package en.jsonl/ja.jsonl/images into release/*.zip"
 	@echo ""
 	@echo "For the translation pipeline (convert/summarize1/check/...), see it/README.md."
 
@@ -26,3 +27,9 @@ serve:
 
 deploy: build
 	bash templates/deploy.sh
+
+release:
+	mkdir -p release
+	zip -j release/en.zip en.jsonl
+	zip -j release/ja.zip ja.jsonl
+	cd images && git ls-files --others --ignored --exclude-standard | grep -v '^__pycache__/' | zip ../release/images.zip -@
