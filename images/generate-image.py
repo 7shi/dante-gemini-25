@@ -95,6 +95,12 @@ def process_part(part, chapters, reference_image, append, characters=None):
         combined_summary = " ".join(summaries)
         prompt = create_illustration_prompt(part, chapter, combined_summary, characters)
         
+        # A selected (non-suffixed) image means this chapter is already finalized
+        selected_filename = os.path.join(part, f"{chapter:02d}.jpg")
+        if not append and os.path.exists(selected_filename):
+            print(f"  Skipping {part.title()} Chapter {chapter} (already selected: {selected_filename})")
+            continue
+
         # Find next available counter
         counter = 1
         while True:
@@ -102,7 +108,7 @@ def process_part(part, chapters, reference_image, append, characters=None):
             if not os.path.exists(test_filename):
                 break
             counter += 1
-        
+
         # Skip if not append mode and files already exist
         if not append and counter > 1:
             print(f"  Skipping {part.title()} Chapter {chapter} (already exists, use --append to add more)")
@@ -138,7 +144,13 @@ def generate_chapter_illustrations(reference_image_path, parts=None, chapters=No
         
         # Use filename without extension as prefix
         title_prefix = os.path.splitext(os.path.basename(title_file))[0]
-        
+
+        # A selected (non-suffixed) image means this title is already finalized
+        selected_filename = f"{title_prefix}.jpg"
+        if not append and os.path.exists(selected_filename):
+            print(f"Skipping {title_prefix} image (already selected: {selected_filename})")
+            return True
+
         # Find next available counter for title-based images
         counter = 1
         while True:
@@ -146,7 +158,7 @@ def generate_chapter_illustrations(reference_image_path, parts=None, chapters=No
             if not os.path.exists(test_filename):
                 break
             counter += 1
-        
+
         # Skip if not append mode and files already exist
         if not append and counter > 1:
             print(f"Skipping {title_prefix} image (already exists, use --append to add more)")

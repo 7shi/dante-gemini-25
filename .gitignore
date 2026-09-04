@@ -12,3 +12,9 @@ wheels/
 # Working data
 en.jsonl
 ja.jsonl
+
+# Images (imported/generated; deployed only, see images/README.md)
+images/*.jpg
+images/inferno/
+images/purgatorio/
+images/paradiso/

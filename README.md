@@ -50,6 +50,10 @@ uv run it/fix_summary.py ja.jsonl paradiso 8 1 -m gemini-2.5-pro
 
 Re-run `make convert` / `make summarize1` afterward to propagate the fix into the generated markdown files.
 
+## Illustrations
+
+See [images/README.md](images/README.md) for the pipeline that generates chapter illustrations from the English translations above using Gemini's image generation.
+
 ## Translation Quality
 
 The translation data has been segmented to match the Italian source text structure. `make check` validates that every segment's line count matches across Italian, English, and Japanese versions.
