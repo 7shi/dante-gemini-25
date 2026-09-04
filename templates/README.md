@@ -15,8 +15,9 @@ file|description
 **`build.py` reads only the expanded `it/`, `en/`, `ja/` files** (`{part}/NN.txt`,
 `{part}.md`, `{part}-1.md`) — it never touches `en.jsonl` / `ja.jsonl`.
 Translation fixes are made directly in the expanded files under `en/` and
-`ja/`; if `make convert` or `make summarize1` is re-run afterward, it
-regenerates those files from the jsonl and overwrites any such hand-fix.
+`ja/`; if `make convert` or `make summarize1` (run from `it/`) is re-run
+afterward, it regenerates those files from the jsonl and overwrites any such
+hand-fix.
 
 `it/{part}/NN.txt` (the Italian source, split per canto) is not tracked in
 git — if missing, run `make -C it all split` first (see

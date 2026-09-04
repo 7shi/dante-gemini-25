@@ -54,7 +54,7 @@ def count_translation_lines(translation_text):
 def count_lines_from_txt(part, chapter):
     """Count lines from original txt file."""
     try:
-        txt_file = Path('it') / part / f"{chapter:02d}.txt"
+        txt_file = Path(part) / f"{chapter:02d}.txt"
         with open(txt_file, 'r', encoding='utf-8') as f:
             return sum(1 for _ in f)
     except Exception:
@@ -64,19 +64,19 @@ def main():
     """Main function to compare segment line counts."""
     
     # Load Italian segment data
-    it_inferno = load_segment_data('it/inferno.jsonl')
-    it_purgatorio = load_segment_data('it/purgatorio.jsonl')
-    it_paradiso = load_segment_data('it/paradiso.jsonl')
-    
+    it_inferno = load_segment_data('inferno.jsonl')
+    it_purgatorio = load_segment_data('purgatorio.jsonl')
+    it_paradiso = load_segment_data('paradiso.jsonl')
+
     it_data = {
         'inferno': it_inferno,
         'purgatorio': it_purgatorio,
         'paradiso': it_paradiso
     }
-    
+
     # Load translation data
-    en_segments = load_segment_data('en.jsonl')
-    ja_segments = load_segment_data('ja.jsonl')
+    en_segments = load_segment_data('../en.jsonl')
+    ja_segments = load_segment_data('../ja.jsonl')
     
     # Dictionary to store line counts: {part: {chapter: {segment: {lang: line_count}}}}
     line_counts = defaultdict(lambda: defaultdict(lambda: defaultdict(dict)))
