@@ -8,7 +8,7 @@ help:
 	@echo "Usage: make <target>"
 	@echo ""
 	@echo "Targets:"
-	@echo "  segment1/2/3     Segment inferno/purgatorio/paradiso into inferno.jsonl/purgatorio.jsonl/paradiso.jsonl"
+	@echo "  segment1/2/3     Segment inferno/purgatorio/paradiso into segments/inferno.jsonl/purgatorio.jsonl/paradiso.jsonl"
 	@echo "  translate-en     Translate segments to English into ../en.jsonl"
 	@echo "  translate-ja     Translate segments to Japanese into ../ja.jsonl"
 	@echo "  align            Fix line-count mismatches in ../en.jsonl and ../ja.jsonl"
@@ -29,11 +29,11 @@ help:
 SEGMENT = uv run segment_chapters.py -m gemini-2.5-pro
 
 segment1:
-	$(SEGMENT) -o inferno.jsonl ../it/inferno
+	$(SEGMENT) -o segments/inferno.jsonl ../it/inferno
 segment2:
-	$(SEGMENT) -o purgatorio.jsonl ../it/purgatorio
+	$(SEGMENT) -o segments/purgatorio.jsonl ../it/purgatorio
 segment3:
-	$(SEGMENT) -o paradiso.jsonl ../it/paradiso
+	$(SEGMENT) -o segments/paradiso.jsonl ../it/paradiso
 
 TRANSLATE = uv run translate_segments.py -m gemini-2.5-pro
 

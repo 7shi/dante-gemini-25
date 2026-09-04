@@ -78,7 +78,7 @@ def load_source_chapters() -> Dict[str, List[List[str]]]:
     """part -> [chapter 1 segments, chapter 2 segments, ...], each segment one joined string."""
     chapters = {}
     for part in PARTS:
-        segmentation_file = os.path.join(SCRIPT_DIR, f"{part}.jsonl")
+        segmentation_file = os.path.join(SCRIPT_DIR, "segments", f"{part}.jsonl")
         directory = os.path.join(SCRIPT_DIR, "..", "it", part)
 
         segmentation_data = {}

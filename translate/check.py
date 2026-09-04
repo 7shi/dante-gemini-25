@@ -64,9 +64,9 @@ def main():
     """Main function to compare segment line counts."""
     
     # Load Italian segment data
-    it_inferno = load_segment_data('inferno.jsonl')
-    it_purgatorio = load_segment_data('purgatorio.jsonl')
-    it_paradiso = load_segment_data('paradiso.jsonl')
+    it_inferno = load_segment_data('segments/inferno.jsonl')
+    it_purgatorio = load_segment_data('segments/purgatorio.jsonl')
+    it_paradiso = load_segment_data('segments/paradiso.jsonl')
 
     it_data = {
         'inferno': it_inferno,

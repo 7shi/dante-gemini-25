@@ -2,9 +2,9 @@
 
 This directory holds the pipeline that turns the per-canto Italian text in
 [`../it/`](../it/README.md) into the per-segment JSONL files
-(`inferno.jsonl`, `purgatorio.jsonl`, `paradiso.jsonl`) and, from those, into
-the root `en.jsonl` / `ja.jsonl` translations, consumed by `convert.py`,
-which also lives here.
+(`segments/inferno.jsonl`, `segments/purgatorio.jsonl`,
+`segments/paradiso.jsonl`) and, from those, into the root `en.jsonl` /
+`ja.jsonl` translations, consumed by `convert.py`, which also lives here.
 
 ## Pipeline
 
@@ -16,10 +16,11 @@ Run `make -C it` and `make -C it split` first (see
 
    `segment_chapters.py` asks an LLM to split each canto's lines into
    translation-sized segments and appends the boundaries to a JSONL file
-   (`inferno.jsonl`, `purgatorio.jsonl`, `paradiso.jsonl`).
+   (`segments/inferno.jsonl`, `segments/purgatorio.jsonl`,
+   `segments/paradiso.jsonl`).
 
    ```
-   uv run segment_chapters.py -m gemini-2.5-pro -o inferno.jsonl ../it/inferno
+   uv run segment_chapters.py -m gemini-2.5-pro -o segments/inferno.jsonl ../it/inferno
    ```
 
 2. **Translate segments** (`make translate-en` / `translate-ja`)
@@ -118,8 +119,9 @@ below with the old mismatched ones, so don't.
 
 ## Other files
 
-- `inferno.jsonl`, `purgatorio.jsonl`, `paradiso.jsonl` - Segment boundaries
-  and translations, keyed by part/chapter/segment.
+- `segments/inferno.jsonl`, `segments/purgatorio.jsonl`,
+  `segments/paradiso.jsonl` - Segment boundaries and translations, keyed by
+  part/chapter/segment.
 - `convert.py` - Expands `../en.jsonl` / `../ja.jsonl` into the per-canto
   `../en/` / `../ja/` translation `.txt` files consumed by the site build
   (see the root [README.md](../README.md#output-structure)). Run via

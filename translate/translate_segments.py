@@ -20,6 +20,8 @@ from pydantic import BaseModel, Field
 from llm7shi.compat import generate_with_schema
 from llm7shi import create_json_descriptions_prompt
 
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+
 class SegmentTranslation(BaseModel):
     """Complete translation result for a text segment"""
     summary: str = Field(
@@ -296,7 +298,7 @@ def main():
     all_data = []
     for directory in args.directories:
         directory_name = os.path.basename(directory)
-        segmentation_file = f"{directory_name}.jsonl"
+        segmentation_file = os.path.join(SCRIPT_DIR, "segments", f"{directory_name}.jsonl")
         
         print(f"Loading segments from {directory} using {segmentation_file}")
         
