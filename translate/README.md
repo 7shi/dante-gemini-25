@@ -96,8 +96,9 @@ below with the old mismatched ones, so don't.
   uv run summarize_segments.py -m openai:gpt-5.6-terra -s inferno:1:1
   ```
 
-  `make summarize` runs it for all three parts; `make summarize-reset`
-  deletes the six `.md` files so the next `summarize` starts over.
+  `make summarize` runs it for all three parts. To start over, delete the
+  six `.md` files by hand - a full regeneration is a whole-poem LLM run, so
+  there is deliberately no target that wipes them for you.
 
 - **`summarize1.py`** - Regenerates `../it/{part}-1.md`, `../en/{part}-1.md`
   and `../ja/{part}-1.md`, one line per canto, as a matched trilingual set:
@@ -114,8 +115,8 @@ below with the old mismatched ones, so don't.
   uv run summarize1.py -m openai:gpt-5.6-terra -s inferno:1
   ```
 
-  `make summarize1` runs it for all three parts; `make summarize1-reset`
-  deletes the six `-1.md` files so the next `summarize1` starts over.
+  `make summarize1` runs it for all three parts. To start over, delete the
+  six `-1.md` files by hand, for the same reason as `summarize`.
 
   Out of scope for now: an Italian column on the site's summary pages
   (`templates/build.py` doesn't read `../it/{part}.md` or

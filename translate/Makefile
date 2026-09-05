@@ -1,7 +1,7 @@
 .PHONY: help segment1 segment2 segment3 \
         translate-en translate-ja align align-en align-ja \
         convert convert-en convert-ja \
-        summarize summarize-reset summarize1 summarize1-reset \
+        summarize summarize1 \
         dedup check
 
 help:
@@ -18,9 +18,7 @@ help:
 	@echo "  convert-en       Expand ../en.jsonl into ../en/"
 	@echo "  convert-ja       Expand ../ja.jsonl into ../ja/"
 	@echo "  summarize        Regenerate ../it/../en/../ja/*.md as a matched trilingual set (LLM)"
-	@echo "  summarize-reset  Delete the *.md summaries so 'summarize' starts over"
 	@echo "  summarize1       Regenerate ../it/../en/../ja/*-1.md as a matched trilingual set (LLM)"
-	@echo "  summarize1-reset Delete the *-1.md summaries so 'summarize1' starts over"
 	@echo "  dedup            Remove cross-segment repetition from ../it/../en/../ja/*.md (LLM)"
 	@echo "  check            Check segment line counts match across it/en/ja"
 	@echo ""
@@ -72,22 +70,12 @@ SUMMARIZE_MODEL = openai:gpt-5.6-terra
 summarize:
 	uv run summarize_segments.py -m $(SUMMARIZE_MODEL)
 
-summarize-reset:
-	rm -f ../it/inferno.md ../it/purgatorio.md ../it/paradiso.md \
-	      ../en/inferno.md ../en/purgatorio.md ../en/paradiso.md \
-	      ../ja/inferno.md ../ja/purgatorio.md ../ja/paradiso.md
-
 # summarize1.py derives one-line-per-canto summaries from summarize's
 # {part}.md segment summaries (not from the JSONL), one canto at a time as a
 # matched trilingual set. Cantos summarize hasn't reached yet are skipped and
 # picked up on a later run.
 summarize1:
 	uv run summarize1.py -m $(SUMMARIZE_MODEL)
-
-summarize1-reset:
-	rm -f ../it/inferno-1.md ../it/purgatorio-1.md ../it/paradiso-1.md \
-	      ../en/inferno-1.md ../en/purgatorio-1.md ../en/paradiso-1.md \
-	      ../ja/inferno-1.md ../ja/purgatorio-1.md ../ja/paradiso-1.md
 
 # dedup_summaries.py rewrites one canto's Italian segment summaries to drop
 # what a later segment restates from an earlier one, then carries the same
