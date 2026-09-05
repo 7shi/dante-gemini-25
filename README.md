@@ -60,6 +60,21 @@ regenerates only that gap; `summarize_segments.py` resumes from the first
 gap onward instead, so fixing one segment's summary means regenerating
 every segment after it too (see [translate/README.md](translate/README.md)).
 
+## Proper Nouns
+
+[`PROPER_NOUNS.tsv`](PROPER_NOUNS.tsv) lists the proper nouns appearing in the
+texts as an `Italian` / `English` / `Japanese` table, aligned from the
+line-parallel `it/`, `en/` and `ja/` files. `translate/translate_segments.py`
+supports feeding such a table into its translation prompts via
+`--proper-nouns`, but its default path doesn't point at this file, and no past
+translation run has passed `--proper-nouns` explicitly - so this table has not
+yet been used to enforce transliteration consistency during translation.
+
+[`ja/NAMES.md`](ja/NAMES.md) (written in Japanese) records the naming
+conventions for the Japanese translation - Italian readings for Italians,
+established Japanese readings for everyone else, Arabic numerals for regnal
+numbers - together with the list of spelling variants to be unified.
+
 ## Illustrations
 
 See [images/README.md](images/README.md) for the pipeline that generates chapter illustrations from the English translations above using Gemini's image generation.
