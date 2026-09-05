@@ -92,8 +92,8 @@ below with the old mismatched ones, so don't.
   in the three `.md` files and continues from there.
 
   ```
-  uv run summarize_segments.py -m openai:gpt-5.6-terra
-  uv run summarize_segments.py -m openai:gpt-5.6-terra -s inferno:1:1
+  uv run summarize_segments.py -m google:gemini-2.5-pro
+  uv run summarize_segments.py -m google:gemini-2.5-pro -s inferno:1:1
   ```
 
   `make summarize` runs it for all three parts. To start over, delete the
@@ -111,8 +111,8 @@ below with the old mismatched ones, so don't.
   incrementally alongside `summarize`.
 
   ```
-  uv run summarize1.py -m openai:gpt-5.6-terra
-  uv run summarize1.py -m openai:gpt-5.6-terra -s inferno:1
+  uv run summarize1.py -m google:gemini-2.5-pro
+  uv run summarize1.py -m google:gemini-2.5-pro -s inferno:1
   ```
 
   `make summarize1` runs it for all three parts. To start over, delete the
@@ -132,7 +132,9 @@ below with the old mismatched ones, so don't.
   reads naturally because `summarize_segments.py` had the preceding segment
   in front of it, or a re-introduction after enough intervening material
   that the reader is glad of it. What is left for this script is the
-  occasional case where none of those apply.
+  occasional case where none of those apply - and so far no canto has
+  actually called for it: the summaries in `../it/`, `../en/` and `../ja/`
+  have never been through this script.
 
   The repetition it does address comes from `summarize_segments.py` writing
   each segment with only the immediately preceding one as context, so a
@@ -194,6 +196,65 @@ below with the old mismatched ones, so don't.
 
   The `{part}-1.md` one-line summaries need no rerun - they compress a whole
   canto, so the repetition is absorbed.
+
+## Summary generation passes
+
+The summaries have been generated twice, by two different models, and the
+superseded set is kept in [`summaries-terra/`](summaries-terra/).
+
+The first pass (commit 6aa4dfd) used `openai:gpt-5.6-terra`, chosen on
+cost: `summarize_segments.py` and `summarize1.py` together run to roughly
+1.1M tokens over the whole poem, which Terra absorbed at effectively no
+charge, while the same work through Gemini 2.5 Pro costs on the order of
+2,000 yen - more than a month of the credit that comes with Google AI Pro.
+
+Using a non-Gemini model there was expected to be as harmless as it is in
+`align_lines.py`, which only redistributes lines a translation already
+contains and so authors nothing. The hope was that reconciling the two
+existing Gemini summaries of a segment would be mechanical in the same way:
+the content is already in `../en.jsonl` and `../ja.jsonl`, and the job
+looks like merging them and anchoring the result to the Italian.
+
+It is not. `summarize_segments.py` writes a fresh Italian summary grounded
+in the Italian source and makes the English and Japanese strict
+translations of that Italian; the existing summaries go in only as a guide
+to scope and length. Terra took that literally and rewrote throughout -
+comparing the two passes on the opening segment (see
+[`summaries-terra/README.md`](summaries-terra/README.md#side-by-side-inferno-1-segment-1))
+shows almost none of the guide's wording surviving. That matters here
+beyond style: this project's premise, stated in its name and its README, is
+that its text is Gemini 2.5 Pro's. The translations still were, but
+summaries written that way are not Gemini's output in any sense, and
+leaving them in place would have meant either quietly breaking the premise
+or documenting an exception to it.
+
+So the summaries were regenerated with `google:gemini-2.5-pro`, paying the
+cost the premise implies. As it happens the rerun also lands nearer the
+mechanical result originally hoped for: on that same segment Gemini keeps
+whole phrases of the English guide intact, where Terra had replaced them.
+
+`SUMMARIZE_MODEL` in the Makefile is Gemini accordingly; `ALIGN_MODEL` and
+`DEDUP_MODEL` stay on Terra, the first because reflowing is not authoring
+and the second because it edits summaries rather than writing them.
+
+`{part}-1.md`, the one-line canto summaries, is still the Terra pass:
+`summarize1.py` reads `{part}.md`, so it has to be rerun on the regenerated
+summaries, and that has not been done yet.
+
+### What the two passes look like
+
+Structurally they are the same set: 34 cantos / 126 paragraphs for Inferno
+and 33 / 125 for the other two, in all three languages, with no gaps - the
+segmentation is fixed by `segments/{part}.jsonl`, so nothing else was
+possible. The text differs throughout: Gemini's paragraphs run 5-9% shorter
+in every part and language, and the two passes follow the guide summaries'
+length to different degrees. The measurements, and the two passes' wording
+side by side on the poem's opening segment, are in
+[`summaries-terra/README.md`](summaries-terra/README.md#measurements).
+
+None of it says one pass is better. It says the same script, given the same
+inputs, produces measurably different text depending on the model, which is
+the reason the pass had to be redone rather than relabeled.
 
 ## Other files
 

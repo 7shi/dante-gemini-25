@@ -25,7 +25,9 @@ help:
 	@echo "convert overwrites the hand-edited ../en/ and ../ja/ translation .txt files."
 	@echo "summarize/summarize1 are resumable: interrupt and re-run to continue where left off."
 
-SEGMENT = uv run segment_chapters.py -m gemini-2.5-pro
+MODEL = gemini-2.5-pro
+
+SEGMENT = uv run segment_chapters.py -m $(MODEL)
 
 segment1:
 	$(SEGMENT) -o segments/inferno.jsonl ../it/inferno
@@ -34,7 +36,7 @@ segment2:
 segment3:
 	$(SEGMENT) -o segments/paradiso.jsonl ../it/paradiso
 
-TRANSLATE = uv run translate_segments.py -m gemini-2.5-pro
+TRANSLATE = uv run translate_segments.py -m $(MODEL)
 
 translate-en:
 	$(TRANSLATE) -o ../en.jsonl ../it/inferno ../it/purgatorio ../it/paradiso -f Italian -t English
@@ -61,7 +63,7 @@ convert: convert-en convert-ja
 convert-en convert-ja: convert-%: ../%.jsonl
 	uv run convert.py $< --output-dir ../$*
 
-SUMMARIZE_MODEL = openai:gpt-5.6-terra
+SUMMARIZE_MODEL = google:$(MODEL)
 
 # summarize_segments.py regenerates ../it/../en/../ja/{part}.md from scratch as
 # a matched trilingual set, replacing the old (mismatched) en/ja-only summaries
@@ -77,6 +79,8 @@ summarize:
 summarize1:
 	uv run summarize1.py -m $(SUMMARIZE_MODEL)
 
+DEDUP_MODEL = $(ALIGN_MODEL)
+
 # dedup_summaries.py rewrites one canto's Italian segment summaries to drop
 # what a later segment restates from an earlier one, then carries the same
 # edits into ../en/{part}.md and ../ja/{part}.md in later turns of the same
@@ -91,7 +95,7 @@ summarize1:
 #   make dedup ARGS='-c inferno:28'
 #   make dedup ARGS='-p inferno'
 dedup:
-	uv run dedup_summaries.py -m $(SUMMARIZE_MODEL) $(ARGS)
+	uv run dedup_summaries.py -m $(DEDUP_MODEL) $(ARGS)
 
 check:
 	uv run check.py
