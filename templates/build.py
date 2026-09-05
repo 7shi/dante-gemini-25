@@ -1,11 +1,12 @@
 """Static site builder for dante-gemini-25.
 
-Reads it/{part}/NN.txt, en/{part}/NN.txt, ja/{part}/NN.txt, en/{part}.md,
-ja/{part}.md, en/{part}-1.md, ja/{part}-1.md and generates:
+Reads it/{part}/NN.txt, en/{part}/NN.txt, ja/{part}/NN.txt, it/{part}.md,
+en/{part}.md, ja/{part}.md, it/{part}-1.md, en/{part}-1.md, ja/{part}-1.md
+and generates:
 - dist/{part}/NN.html    per-canto page with an Italian/English/Japanese
                          line-by-line trilingual layout
-- dist/{part}/index.html per-canticle summary page (English/Japanese segment
-                         summaries, side by side, per canto)
+- dist/{part}/index.html per-canticle summary page (Italian/English/Japanese
+                         segment summaries, side by side, per canto)
 - dist/index.html        landing page
 - dist/assets/           static assets (reader.css)
 - dist/images/           compressed illustrations (see images/compress.py)

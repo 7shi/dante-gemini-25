@@ -7,7 +7,7 @@ generate the static site published at
 file|description
 ----|----
 [canto.html](canto.html) | per-canto page: a line-by-line Italian/English/Japanese trilingual layout
-[summary.html](summary.html) | per-canticle summary page: title illustration + English/Japanese segment summaries for every canto
+[summary.html](summary.html) | per-canticle summary page: title illustration + Italian/English/Japanese segment summaries for every canto
 [index.html](index.html) | landing page
 [_sidebar.html](_sidebar.html) | shared sidebar/navigation include
 [static/](static/) | CSS copied as-is into `dist/`
@@ -15,9 +15,11 @@ file|description
 **`build.py` reads only the expanded `it/`, `en/`, `ja/` files** (`{part}/NN.txt`,
 `{part}.md`, `{part}-1.md`) — it never touches `en.jsonl` / `ja.jsonl`.
 Translation fixes are made directly in the expanded files under `en/` and
-`ja/`; if `make convert` or `make summarize1` (run from `translate/`) is re-run
-afterward, it regenerates those files from the jsonl and overwrites any such
-hand-fix.
+`ja/`; re-running `make convert` (from `translate/`) regenerates the
+`{part}/NN.txt` files — and `en/{part}.md`, `ja/{part}.md` — from the jsonl
+and overwrites any such hand-fix. The summaries have their own regenerators,
+`make summarize` and `make summarize1`, which read the Italian source and
+`{part}.md` rather than the jsonl.
 
 `it/{part}/NN.txt` (the Italian source, split per canto) is not tracked in
 git — if missing, run `make -C it all split` first (see
