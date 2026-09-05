@@ -2,7 +2,7 @@
 
 This project translates Dante's Divine Comedy from Italian to English and Japanese using Google's Gemini 2.5 Pro model. Unlike previous multilingual explorations, this project focuses specifically on English and Japanese translations.
 
-**[Read online](https://7shi.github.io/dante-gemini-25/)** — each canto as a line-by-line Italian/English/Japanese page, plus a per-canticle summary page (Inferno/Purgatorio/Paradiso) with English/Japanese segment summaries side by side.
+**[Read online](https://7shi.github.io/dante-gemini-25/)** — each canto as a line-by-line Italian/English/Japanese page, plus a per-canticle summary page (Inferno/Purgatorio/Paradiso) with Italian/English/Japanese segment summaries side by side.
 
 > [!NOTE]
 > All translations in this repository are machine-generated (Gemini 2.5 Pro) and have not been reviewed or corrected by a human translator.

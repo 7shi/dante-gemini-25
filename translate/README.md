@@ -118,10 +118,6 @@ below with the old mismatched ones, so don't.
   `make summarize1` runs it for all three parts. To start over, delete the
   six `-1.md` files by hand, for the same reason as `summarize`.
 
-  Out of scope for now: an Italian column on the site's summary pages
-  (`templates/build.py` doesn't read `../it/{part}.md` or
-  `../it/{part}-1.md` yet).
-
 - **`dedup_summaries.py`** - For a canto you have looked at and judged
   repetitive, not for a pass over everything. A full run was considered and
   dropped: sampling the cantos a repeated-phrase scan ranked highest turned
@@ -237,9 +233,9 @@ whole phrases of the English guide intact, where Terra had replaced them.
 `DEDUP_MODEL` stay on Terra, the first because reflowing is not authoring
 and the second because it edits summaries rather than writing them.
 
-`{part}-1.md`, the one-line canto summaries, is still the Terra pass:
-`summarize1.py` reads `{part}.md`, so it has to be rerun on the regenerated
-summaries, and that has not been done yet.
+`{part}-1.md` was regenerated after `{part}.md`, not alongside it:
+`summarize1.py` reads the segment summaries rather than the poem, so it had
+to wait for the new ones to be in place.
 
 ### What the two passes look like
 
