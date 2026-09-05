@@ -57,15 +57,19 @@ commands above.
   uv run align_lines.py ../en.jsonl -m openai:gpt-5.6-terra -s inferno:11:3,purgatorio:18:1
   ```
 
-- **`fix_summary.py`** - If a segment's `summary` field is wrong (e.g.
-  hallucinated content unrelated to its translation), this regenerates just
-  that field from the segment's own translation text, with no other context.
+- **`fix_summary.py`** - No longer used. It regenerates a single segment's
+  `summary` field in `../en.jsonl` / `../ja.jsonl` from that segment's own
+  translation text. Those `summary` fields stopped being the source of the
+  `{part}.md` summary pages when `summarize_segments.py` took over, and the
+  `.md` files are now edited directly (by `summarize_segments.py`,
+  `dedup_summaries.py`, or by hand), so fixing the JSONL no longer affects
+  anything the site shows. Kept for reference only.
 
   ```
   uv run fix_summary.py ../ja.jsonl paradiso 8 1 -m gemini-2.5-pro
   ```
 
-After using either fix-up tool, re-run `make convert` (in this directory) to
+After using `align_lines.py`, re-run `make convert` (in this directory) to
 propagate the translation changes into `../en/` and `../ja/`'s per-canto
 `.txt` files, overwriting any hand-fix made directly in those files — that
 overwrite risk is why `convert.py` and its `make` targets live here rather
@@ -116,6 +120,79 @@ below with the old mismatched ones, so don't.
   Out of scope for now: an Italian column on the site's summary pages
   (`templates/build.py` doesn't read `../it/{part}.md` or
   `../it/{part}-1.md` yet).
+
+- **`dedup_summaries.py`** - For a canto you have looked at and judged
+  repetitive, not for a pass over everything. A full run was considered and
+  dropped: sampling the cantos a repeated-phrase scan ranked highest turned
+  up almost nothing worth changing. Where a later segment does echo an
+  earlier one it is usually a deliberate echo in the poem (Mosca asking to
+  be remembered after Pier da Medicina - the same words, a different
+  speaker, so not a repetition at all), a connective back-reference that
+  reads naturally because `summarize_segments.py` had the preceding segment
+  in front of it, or a re-introduction after enough intervening material
+  that the reader is glad of it. What is left for this script is the
+  occasional case where none of those apply.
+
+  The repetition it does address comes from `summarize_segments.py` writing
+  each segment with only the immediately preceding one as context, so a
+  later segment can restate what an earlier one already established.
+  Nothing there sees a canto whole, and the repetition is semantic rather
+  than literal, so no mechanical check finds it. The paragraphs are
+  published one after another and read straight through, so the standard the
+  model is held to is how the canto reads in sequence, not a rule about
+  facts appearing twice - that is what decides each case, including the ones
+  below.
+
+  It works a canto at a time, as a three-turn conversation. The first turn
+  gives the model all of that canto's current Italian summaries and asks it
+  to keep the first occurrence of each piece of information and trim the
+  restatements, while a second event that merely resembles the first (Mosca
+  again) stays, written as the echo it is - which is how it reads naturally
+  in place. The second and third turns give it the canto's existing English
+  and Japanese summaries and ask it to carry the same edits across - the
+  corrected Italian is already in the conversation, so it costs nothing to
+  resend, and the three files come out a matched set. Everything that is not
+  a repetition is returned verbatim in all three languages. Each translation
+  turn gets the whole canto even so, unchanged segments included: they are
+  what tells the model which wording the canto already uses for a given name
+  or term, so a rewritten passage stays consistent with the ones around it.
+
+  The Italian source text is deliberately not shown. Prompted with it, the
+  model can see that a restatement is grounded in the poem and defends it
+  instead of removing it - the wrong question here, since the summaries, not
+  the source, are what is being edited. Leaving it out is also what makes
+  the translation turns cheap.
+
+  Each canto gets its own `Client`, so no canto's turns can leak into the
+  next one's context, and a retry (the model returning the wrong number of
+  summaries) starts a fresh conversation rather than appending to the
+  discarded one.
+
+  ```
+  uv run dedup_summaries.py -m openai:gpt-5.6-terra -c inferno:28
+  uv run dedup_summaries.py -m openai:gpt-5.6-terra -c inferno:28 --no-write
+  ```
+
+  `-p inferno` (or no target at all) does exist and runs whole parts, but
+  see above: it is not what this is for.
+
+  `make dedup ARGS='...'` passes arguments through. Each canto is written as
+  soon as it comes back, and its changed segments printed as `-`/`+` pairs.
+  Writing is the default on purpose: the edit cannot be known without
+  generating it, so withholding it by default would mean paying for a
+  generation, discarding it, and paying again for the real run. Commit the
+  summary files first and review the result with `git diff`; `git checkout`
+  undoes a run. `--no-write` prints the changes and writes nothing, which is
+  what to use when iterating on the prompt - the summaries on disk stay put,
+  so each run starts from the same input.
+
+  Italian is corrected first because it is the pipeline's anchor: the
+  duplication is in it, and `../en/{part}.md` and `../ja/{part}.md` merely
+  translate it, so correcting a translation on its own would leave the
+  anchor stale and quietly move it to that language.
+
+  The `{part}-1.md` one-line summaries need no rerun - they compress a whole
+  canto, so the repetition is absorbed.
 
 ## Other files
 

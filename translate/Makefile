@@ -2,7 +2,7 @@
         translate-en translate-ja align align-en align-ja \
         convert convert-en convert-ja \
         summarize summarize-reset summarize1 summarize1-reset \
-        check
+        dedup check
 
 help:
 	@echo "Usage: make <target>"
@@ -21,6 +21,7 @@ help:
 	@echo "  summarize-reset  Delete the *.md summaries so 'summarize' starts over"
 	@echo "  summarize1       Regenerate ../it/../en/../ja/*-1.md as a matched trilingual set (LLM)"
 	@echo "  summarize1-reset Delete the *-1.md summaries so 'summarize1' starts over"
+	@echo "  dedup            Remove cross-segment repetition from ../it/../en/../ja/*.md (LLM)"
 	@echo "  check            Check segment line counts match across it/en/ja"
 	@echo ""
 	@echo "convert overwrites the hand-edited ../en/ and ../ja/ translation .txt files."
@@ -87,6 +88,22 @@ summarize1-reset:
 	rm -f ../it/inferno-1.md ../it/purgatorio-1.md ../it/paradiso-1.md \
 	      ../en/inferno-1.md ../en/purgatorio-1.md ../en/paradiso-1.md \
 	      ../ja/inferno-1.md ../ja/purgatorio-1.md ../ja/paradiso-1.md
+
+# dedup_summaries.py rewrites one canto's Italian segment summaries to drop
+# what a later segment restates from an earlier one, then carries the same
+# edits into ../en/{part}.md and ../ja/{part}.md in later turns of the same
+# conversation, keeping the three files a matched set.
+#
+# For a canto you have judged repetitive, not for a pass over everything -
+# a full run was tried and dropped as not worth it (see README.md).
+#
+# It writes as it goes - there is no dry run, since the edit can't be known
+# without generating it. Commit first; review with git diff.
+#
+#   make dedup ARGS='-c inferno:28'
+#   make dedup ARGS='-p inferno'
+dedup:
+	uv run dedup_summaries.py -m $(SUMMARIZE_MODEL) $(ARGS)
 
 check:
 	uv run check.py
