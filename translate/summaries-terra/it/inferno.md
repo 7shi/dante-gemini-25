@@ -1,4 +1,3 @@
-
 ## Canto 1
 
 A metà della vita, il narratore si ritrova in una selva oscura dopo aver smarrito la via diritta, e ne descrive l'asprezza e il terrore. Giunto ai piedi di un colle illuminato dai raggi del sole, la sua paura si placa; dopo aver guardato indietro il passo pericoloso da cui è fuggito, riprende il cammino salendo la piaggia deserta.

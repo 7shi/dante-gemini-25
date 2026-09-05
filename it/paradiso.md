@@ -1,4 +1,3 @@
-
 ## Canto 1
 
 L'autore introduce la sua cantica finale, il Paradiso, affermando di essere stato nel cielo più alto e di aver visto cose che superano la memoria e l'espressione umana. Ora si accinge a cantare ciò che ha potuto serbare nella mente del "regno santo". Invoca Apollo, chiedendo la più alta ispirazione poetica per quest'ultima fatica, alludendo al mito di Marsia per trasmettere l'intensità che ricerca. Si lamenta di quanto raramente gli uomini cerchino la vera gloria (la corona d'alloro) e spera che la sua opera possa ispirare poeti futuri a fare lo stesso.

@@ -1,4 +1,3 @@
-
 ## Canto 1
 
 A metà della sua vita, il narratore si smarrisce in una selva oscura, allontanandosi dalla retta via. Descrive il terrore che la selva gli ispira, ma la sua paura si placa quando raggiunge un colle la cui cima è illuminata dai raggi del sole. Dopo essersi voltato a guardare il passo pericoloso da cui è fuggito e aver riposato un poco, inizia a salire per il pendio deserto.

@@ -1,4 +1,3 @@
-
 ## Canto 1
 
 The author introduces his final canticle, Paradiso, stating that he has been in the highest heaven and has seen things that surpass human memory and expression. He now prepares to sing of what he was able to treasure in his mind of the "holy kingdom." He invokes Apollo, asking for the highest poetic inspiration for this final labor, alluding to the myth of Marsyas to convey the intensity he seeks. He laments how rarely humans seek true glory (the laurel crown) and hopes that his work might inspire future poets to do the same.

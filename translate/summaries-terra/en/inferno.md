@@ -1,4 +1,3 @@
-
 ## Canto 1
 
 In the middle of life, the narrator finds himself in a dark wood after losing the straight path, and describes its harshness and terror. Having reached the foot of a hill illuminated by the sun's rays, his fear subsides; after looking back at the dangerous passage from which he has fled, he resumes his journey by climbing the deserted slope.

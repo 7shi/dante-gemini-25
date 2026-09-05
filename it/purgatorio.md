@@ -1,4 +1,3 @@
-
 ## Canto 1
 
 Il poeta annuncia che la navicella del suo ingegno lascia il mare crudele dell'Inferno per cantare del secondo regno, il Purgatorio, dove lo spirito umano si purifica. Invoca le Muse, e in particolare Calliope, perché la sua poesia, morta nell'Inferno, possa risorgere. Uscito dall'aria morta infernale, ritrova diletto nel dolce colore del cielo sereno all'alba, illuminato da Venere, e volgendo lo sguardo a sud scorge quattro stelle mai viste se non dai primi uomini, che fanno gioire il cielo.

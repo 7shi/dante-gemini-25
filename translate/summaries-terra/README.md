@@ -4,8 +4,10 @@ The it/en/ja segment summaries (`{part}.md`) and one-line canto summaries
 (`{part}-1.md`) as `summarize_segments.py` / `summarize1.py` first produced
 them, with `-m openai:gpt-5.6-terra`. They were the contents of `../../it/`,
 `../../en/` and `../../ja/` from commit 6aa4dfd until the regeneration with
-`google:gemini-2.5-pro`; `dedup_summaries.py` was never run over them, so
-this is the raw output of that pass.
+`google:gemini-2.5-pro`. Nothing has been edited into them since; the one
+change is the blank first line every `{part}.md` used to start with, dropped
+here and in the regenerated set alike once `format_summary_md()` stopped
+emitting it.
 
 Kept because the project's premise is that its text is Gemini 2.5 Pro's:
 these files are not, and regenerating them was what put the summaries back

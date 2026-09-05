@@ -1,4 +1,3 @@
-
 ## Canto 1
 
 Midway through his life, the narrator gets lost in a dark wood, having strayed from the straight path. He describes the terror the wood inspires in him, but his fear subsides when he reaches a hill whose peak is lit by the sun's rays. After turning to look back at the perilous pass from which he has fled and resting a little, he begins to ascend the deserted slope.

@@ -1,4 +1,3 @@
-
 ## Canto 1
 
 Lasciato il mare crudele dell'Inferno, il poeta innalza la navicella del proprio ingegno per cantare il secondo regno, dove lo spirito umano si purifica e si rende degno di salire al cielo. Invoca le Muse e soprattutto Calliope, chiedendo che la poesia risorga e che ella lo assista con il canto che inflisse alle Piche un colpo tale da farle disperare del perdono. Uscito dall'aura morta, ritrova il diletto del sereno cielo color zaffiro e della stella d'amore che illumina l'oriente. Volgendosi a sud, vede quattro stelle mai viste se non dalla prima gente e lamenta che il settentrione ne sia privo; poi gira lo sguardo verso l'altro polo, dove il Carro è già scomparso.

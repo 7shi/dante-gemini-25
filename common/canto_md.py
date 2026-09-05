@@ -36,7 +36,12 @@ def parse_summary_md(path: Union[str, Path]) -> Dict[int, List[str]]:
 
 
 def format_summary_md(chapters: Dict[int, List[str]]) -> str:
-    """Render chapter -> [paragraph, ...] back into {part}.md text."""
+    """Render chapter -> [paragraph, ...] back into {part}.md text.
+
+    Empty input renders as "", not "\\n": summarize_segments.py writes this
+    out before appending its first segment, and a lone newline there would
+    leave the file starting with a blank line.
+    """
     lines = []
     for i, chapter in enumerate(sorted(chapters)):
         if i:
@@ -45,7 +50,7 @@ def format_summary_md(chapters: Dict[int, List[str]]) -> str:
         for paragraph in chapters[chapter]:
             lines.append("")
             lines.append(paragraph)
-    return "\n".join(lines) + "\n"
+    return "\n".join(lines) + "\n" if lines else ""
 
 
 ONELINE_RE = re.compile(r"^(\d+)\.\s+(.*)$")

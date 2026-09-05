@@ -1,4 +1,3 @@
-
 ## Canto 1
 
 La gloria di Dio penetra e risplende nell’universo in misura diversa; il poeta afferma di essere stato nel cielo che più riceve la sua luce, dove vide realtà che l’intelletto e la memoria umani non riescono a conservare né a ridire. Egli canterà tuttavia quanto ha potuto serbare nella mente del regno santo e invoca Apollo affinché gli infonda una forza poetica eccezionale per la sua opera conclusiva. Poiché finora gli è bastato un solo giogo del Parnaso, ora chiede l’aiuto di entrambi e prega il dio di ispirarlo con la stessa potenza con cui scorticò Marsia. Se riuscirà a manifestare anche solo l’ombra del beato regno, spera di meritare la corona d’alloro, lamentando che pochi la desiderino per vera gloria e augurandosi che il suo esempio spinga poeti migliori a invocare Cirra.

@@ -1,4 +1,3 @@
-
 ## Canto 1
 
 The glory of God penetrates and shines through the universe in differing measure; the poet declares that he was in the heaven that receives most of His light, where he saw realities that human intellect and memory cannot preserve or recount. Yet he will sing what he was able to keep in his mind of the holy kingdom, and invokes Apollo so that he may infuse him with exceptional poetic power for his final work. Since until now one peak of Parnassus has been enough for him, he now asks for the help of both and prays to the god to inspire him with the same power with which he flayed Marsyas. If he succeeds in revealing even the shadow of the blessed kingdom, he hopes to deserve the laurel crown, lamenting that few desire it for true glory and hoping that his example will prompt better poets to invoke Cirrha.

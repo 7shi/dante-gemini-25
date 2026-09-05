@@ -1,4 +1,3 @@
-
 ## Canto 1
 
 Having left the cruel sea of Hell, the poet raises the little vessel of his intellect to sing of the second realm, where the human spirit is purified and becomes worthy to ascend to Heaven. He invokes the Muses and especially Calliope, asking that poetry rise again and that she aid him with the song that dealt the Pieres such a blow that they despaired of forgiveness. Having emerged from the dead air, he again delights in the serene sapphire-colored sky and the star of love that lights the east. Turning south, he sees four stars never seen except by the first people and laments that the north is deprived of them; then he turns his gaze toward the other pole, where the Chariot has already disappeared.

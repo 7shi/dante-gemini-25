@@ -1,4 +1,3 @@
-
 ## Canto 1
 
 The poet announces that the little boat of his intellect is leaving the cruel sea of Hell to sing of the second realm, Purgatory, where the human spirit is purified. He invokes the Muses, and in particular Calliope, so that his poetry, which was dead in Hell, may rise again. Having emerged from the dead infernal air, he again finds delight in the sweet color of the serene sky at dawn, illuminated by Venus, and turning his gaze south he spies four stars never seen except by the first people, which make the heavens rejoice.
