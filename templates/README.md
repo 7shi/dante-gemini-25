@@ -6,15 +6,20 @@ generate the static site published at
 
 file|description
 ----|----
-[canto.html](canto.html) | per-canto page: a line-by-line Italian/English/Japanese trilingual layout
+[canto.html](canto.html) | per-canto page: the canto's one-line summary, then the text split into its segments, each headed by its summary above a line-by-line Italian/English/Japanese trilingual layout
 [part_index.html](part_index.html) | per-canticle index page (`{part}/index.html`): title illustration + Italian/English/Japanese one-line summaries for every canto
-[summary.html](summary.html) | per-canticle summary page (`{part}/summary.html`): title illustration + Italian/English/Japanese segment summaries for every canto
+[summary.html](summary.html) | per-canticle summary page (`{part}/summary.html`): title illustration + Italian/English/Japanese segment summaries for every canto, each linking to that segment on the canto page
 [index.html](index.html) | landing page
 [_sidebar.html](_sidebar.html) | shared sidebar/navigation include
 [static/](static/) | CSS copied as-is into `dist/`
 
 **`build.py` reads only the expanded `it/`, `en/`, `ja/` files** (`{part}/NN.txt`,
-`{part}.md`, `{part}-1.md`) — it never touches `en.jsonl` / `ja.jsonl`.
+`{part}.md`, `{part}-1.md`) — it never touches `en.jsonl` / `ja.jsonl`. Its one
+other input is `translate/segments/{part}.jsonl`, from which it takes the
+segment line ranges (`boundaries`) that split a canto page into sections; the
+summary shown above each section is the matching paragraph of `{part}.md`, so
+the two must agree on how many segments a canto has. If they don't, the canto
+is rendered unsegmented with a warning.
 Translation fixes are made directly in the expanded files under `en/` and
 `ja/`; re-running `make convert` (from `translate/`) regenerates the
 `{part}/NN.txt` files — and `en/{part}.md`, `ja/{part}.md` — from the jsonl

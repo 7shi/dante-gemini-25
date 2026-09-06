@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ part_label }} (Summary) — Summaries — La Divina Commedia</title>
+    <title>{{ part_label }} (Riassunti) — La Divina Commedia</title>
     <link rel="stylesheet" href="{{ base }}assets/reader.css">
 </head>
 <body>
@@ -12,7 +12,7 @@
         <main class="content">
             <div class="container">
                 <header class="page-header">
-                    <h1>{{ part_label }} (Summary)</h1>
+                    <h1>{{ part_label }} <span class="title-gloss">(<span lang="it">Riassunti</span> &mdash; <span lang="en">Summaries</span> &mdash; <span lang="ja">要約</span>)</span></h1>
                 </header>
 
                 <img src="{{ base }}images/{{ part_key }}-title.jpg" alt="" class="header-image">
@@ -20,11 +20,15 @@
                 {% for c in cantos %}
                 <section class="summary-canto">
                     <h2><a href="{{ base }}{{ c.href }}">Canto {{ c.number }}</a></h2>
-                    {% for it_p, en_p, ja_p in c.paragraphs %}
+                    {% for segment in c.segments %}
+                    <h3 class="segment-heading">
+                        <a href="{{ base }}{{ c.href }}#{{ segment.anchor }}" lang="it">Segmento {{ segment.number }}</a>
+                        <span class="segment-range">{{ segment.start_line }}&ndash;{{ segment.end_line }}</span>
+                    </h3>
                     <div class="summary-pair">
-                        <p lang="it">{{ it_p }}</p>
-                        <p lang="en">{{ en_p }}</p>
-                        <p lang="ja">{{ ja_p }}</p>
+                        <p lang="it">{{ segment.summary_it }}</p>
+                        <p lang="en">{{ segment.summary_en }}</p>
+                        <p lang="ja">{{ segment.summary_ja }}</p>
                     </div>
                     {% endfor %}
                 </section>

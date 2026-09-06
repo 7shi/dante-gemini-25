@@ -17,16 +17,49 @@
 
                 <img src="{{ base }}images/{{ part_key }}/{{ "%02d"|format(canto.number) }}.jpg" alt="" class="header-image">
 
-                <div class="trilingual">
-                    {% for lineno, it, en, ja in canto.lines %}
-                    <div class="line">
-                        <span class="lineno">{{ lineno }}</span>
-                        <span class="text" lang="it">{{ it }}</span>
-                        <span class="text" lang="en">{{ en }}</span>
-                        <span class="text" lang="ja">{{ ja }}</span>
+                {% if canto.oneline_it or canto.oneline_en or canto.oneline_ja %}
+                <div class="canto-oneline">
+                    <h2 class="summary-pair caption-trilingual">
+                        <span lang="it">Riassunto</span>
+                        <span lang="en">Summary</span>
+                        <span lang="ja">要約</span>
+                    </h2>
+                    <div class="summary-pair">
+                        <p lang="it">{{ canto.oneline_it }}</p>
+                        <p lang="en">{{ canto.oneline_en }}</p>
+                        <p lang="ja">{{ canto.oneline_ja }}</p>
                     </div>
-                    {% endfor %}
                 </div>
+                {% endif %}
+
+                {% for segment in canto.segments %}
+                <section class="segment" id="{{ segment.anchor }}">
+                    {% if segment.summary_it or segment.summary_en or segment.summary_ja %}
+                    <div class="segment-summary">
+                        <h2 class="segment-heading">
+                            <a href="#{{ segment.anchor }}" lang="it" title="Permalink to this segment">Segmento {{ segment.number }}</a>
+                            <span class="segment-range">{{ segment.start_line }}&ndash;{{ segment.end_line }}</span>
+                        </h2>
+                        <div class="summary-pair">
+                            <p lang="it">{{ segment.summary_it }}</p>
+                            <p lang="en">{{ segment.summary_en }}</p>
+                            <p lang="ja">{{ segment.summary_ja }}</p>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <div class="trilingual terzina-{{ segment.terzina_offset }}">
+                        {% for lineno, it, en, ja in segment.lines %}
+                        <div class="line">
+                            <span class="lineno">{{ lineno }}</span>
+                            <span class="text" lang="it">{{ it }}</span>
+                            <span class="text" lang="en">{{ en }}</span>
+                            <span class="text" lang="ja">{{ ja }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </section>
+                {% endfor %}
 
                 {% if canto.is_last %}
                 <img src="{{ base }}images/{{ part_key }}-last.jpg" alt="" class="last-image">

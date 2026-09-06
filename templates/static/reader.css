@@ -257,6 +257,14 @@ ul.canto-row a.active {
     margin: 0;
 }
 
+/* trilingual gloss of a page title, e.g. "(Riassunti - Summaries - 要約)" */
+
+.page-header h1 .title-gloss {
+    font-size: 0.7em;
+    font-weight: 400;
+    color: var(--muted);
+}
+
 /* header / final-scene images */
 
 .header-image, .last-image {
@@ -270,6 +278,83 @@ ul.canto-row a.active {
 .last-image {
     margin-top: 1.5rem;
     margin-bottom: 0;
+}
+
+/* canto page: one-line summary, then one section per segment */
+
+.canto-oneline {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1rem 1.25rem 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+.canto-oneline .summary-pair {
+    margin-bottom: 0;
+    font-size: 0.95rem;
+}
+
+.content .container section.segment {
+    margin-top: 1.5rem;
+}
+
+.segment-summary {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px 12px 0 0;
+    border-bottom: none;
+    padding: 1rem 1.25rem 0.75rem;
+}
+
+.segment-summary .summary-pair {
+    margin-bottom: 0;
+    font-size: 0.95rem;
+}
+
+.segment-summary + .trilingual {
+    border-radius: 0 0 12px 12px;
+    /* same accent rule that separates the terzinas */
+    border-top-color: var(--accent);
+}
+
+/* a caption spread over the same three columns as the text below it */
+
+.content .container .caption-trilingual {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--muted);
+    margin: 0 0 0.35rem;
+}
+
+.content .container .segment-heading {
+    display: flex;
+    align-items: baseline;
+    gap: 0.6rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin: 0 0 0.5rem;
+    color: var(--muted);
+}
+
+.segment-heading a {
+    text-decoration: none;
+}
+
+.segment-range {
+    color: var(--muted);
+    font-size: 0.85rem;
+    font-weight: 400;
+}
+
+/* summary page: segment headings between the paragraphs */
+
+.summary-canto .segment-heading {
+    margin-top: 1rem;
+}
+
+.summary-canto .segment-heading:first-of-type {
+    margin-top: 0;
 }
 
 /* trilingual line-by-line canto text */
@@ -299,6 +384,18 @@ ul.canto-row a.active {
 
 .line:last-child.line:nth-child(3n) {
     border-bottom: none;
+}
+
+/* a segment that starts mid-terzina shifts which line the accent rule ends on */
+
+.trilingual.terzina-1 .line:nth-child(3n),
+.trilingual.terzina-2 .line:nth-child(3n) {
+    border-bottom-color: var(--border);
+}
+
+.trilingual.terzina-1 .line:nth-child(3n+1):not(:last-child),
+.trilingual.terzina-2 .line:nth-child(3n+2):not(:last-child) {
+    border-bottom: 1px solid var(--accent);
 }
 
 .lineno {

@@ -2,8 +2,10 @@
 
 Reads it/{part}/NN.txt, en/{part}/NN.txt, ja/{part}/NN.txt, it/{part}.md,
 en/{part}.md, ja/{part}.md, it/{part}-1.md, en/{part}-1.md, ja/{part}-1.md
-and generates:
-- dist/{part}/NN.html    per-canto page with an Italian/English/Japanese
+and translate/segments/{part}.jsonl (segment line ranges only) and generates:
+- dist/{part}/NN.html    per-canto page: the canto's one-line summary, then
+                         the text split into its segments, each headed by the
+                         segment summary, in an Italian/English/Japanese
                          line-by-line trilingual layout
 - dist/{part}/index.html per-canticle index page (Italian/English/Japanese
                          one-line summaries, side by side, per canto)
@@ -19,6 +21,7 @@ translation fixes are made directly in the expanded files (see README.md).
 
 from __future__ import annotations
 
+import json
 import shutil
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -31,6 +34,7 @@ ROOT = Path(__file__).parent.parent
 TEMPLATES_DIR = ROOT / "templates"
 STATIC_DIR = TEMPLATES_DIR / "static"
 DIST_DIR = ROOT / "dist"
+SEGMENTS_DIR = ROOT / "translate" / "segments"
 
 PARTS = [
     {"key": "inferno", "label": "Inferno"},
@@ -40,10 +44,35 @@ PARTS = [
 
 
 @dataclass
+class Segment:
+    number: int  # 1-based, within its canto
+    start_line: int
+    end_line: int
+    summary_it: str = ""
+    summary_en: str = ""
+    summary_ja: str = ""
+    lines: list[tuple[int, str, str, str]] = field(default_factory=list)  # (lineno, it, en, ja)
+
+    @property
+    def anchor(self) -> str:
+        return f"s{self.number}"
+
+    @property
+    def terzina_offset(self) -> int:
+        """Which nth-child(3n+offset) line ends a terzina inside this segment.
+
+        The accent rule in reader.css marks every third line; a segment that
+        starts mid-terzina (a couple do) needs that grouping shifted.
+        """
+        return (1 - self.start_line) % 3
+
+
+@dataclass
 class Canto:
     part: str
     number: int
     lines: list[tuple[int, str, str, str]] = field(default_factory=list)  # (lineno, it, en, ja)
+    segments: list[Segment] = field(default_factory=list)
     oneline_it: str = ""
     oneline_en: str = ""
     oneline_ja: str = ""
@@ -110,6 +139,72 @@ def load_segment_summaries(part: str) -> dict[int, list[tuple[str, str, str]]]:
     return result
 
 
+def load_segment_boundaries(part: str) -> dict[int, list[tuple[int, int]]]:
+    """Return canto -> [(start_line, end_line), ...] from translate/segments/{part}.jsonl.
+
+    Only the line ranges are read; the segment summaries themselves come from
+    the {part}.md files, one paragraph per segment in the same order.
+    """
+    path = SEGMENTS_DIR / f"{part}.jsonl"
+    if not path.exists():
+        raise SystemExit(
+            f"Missing {path.relative_to(ROOT)}. "
+            f"Run 'make -C translate segment1' (or segment2/segment3) to regenerate it."
+        )
+    result: dict[int, list[tuple[int, int]]] = {}
+    for line in path.read_text(encoding="utf-8").splitlines():
+        if not line.strip():
+            continue
+        entry = json.loads(line)
+        result[entry["chapter"]] = [
+            (b["start_line"], b["end_line"]) for b in entry["boundaries"]
+        ]
+    return result
+
+
+def split_into_segments(
+    part: str,
+    number: int,
+    lines: list[tuple[int, str, str, str]],
+    boundaries: list[tuple[int, int]],
+    summaries: list[tuple[str, str, str]],
+) -> list[Segment]:
+    """Group a canto's lines into its segments, each headed by its summary.
+
+    Falls back to a single summary-less segment holding the whole canto if the
+    canto has no boundaries, or if the boundaries and the {part}.md paragraphs
+    disagree on how many segments it has.
+    """
+    if not boundaries or len(boundaries) != len(summaries):
+        if boundaries:
+            print(
+                f"Warning: {part} canto {number} has {len(boundaries)} segments in "
+                f"{(SEGMENTS_DIR / f'{part}.jsonl').relative_to(ROOT)} but "
+                f"{len(summaries)} summary paragraph(s) in {{it,en,ja}}/{part}.md; "
+                f"showing the canto unsegmented"
+            )
+        return [Segment(number=1, start_line=1, end_line=len(lines), lines=lines)]
+
+    segments = []
+    for i, ((start, end), (it_p, en_p, ja_p)) in enumerate(zip(boundaries, summaries), start=1):
+        segments.append(Segment(
+            number=i,
+            start_line=start,
+            end_line=end,
+            summary_it=it_p,
+            summary_en=en_p,
+            summary_ja=ja_p,
+            lines=[line for line in lines if start <= line[0] <= end],
+        ))
+    covered = sum(len(s.lines) for s in segments)
+    if covered != len(lines):
+        print(
+            f"Warning: {part} canto {number} segment boundaries cover {covered} "
+            f"of {len(lines)} lines"
+        )
+    return segments
+
+
 def load_oneline(part: str) -> dict[int, dict[str, str]]:
     """Return canto -> {"it": text, "en": text, "ja": text} from {part}-1.md."""
     result: dict[int, dict[str, str]] = {}
@@ -134,12 +229,20 @@ def summary_href(part: str) -> str:
 def load_part_cantos(part: str) -> list[Canto]:
     total = count_cantos(part)
     onelines = load_oneline(part)
+    summaries = load_segment_summaries(part)
+    boundaries = load_segment_boundaries(part)
     cantos = []
     for number in range(1, total + 1):
+        lines = load_canto_lines(part, number)
         canto = Canto(
             part=part,
             number=number,
-            lines=load_canto_lines(part, number),
+            lines=lines,
+            segments=split_into_segments(
+                part, number, lines,
+                boundaries.get(number, []),
+                summaries.get(number, []),
+            ),
             oneline_it=onelines.get(number, {}).get("it", ""),
             oneline_en=onelines.get(number, {}).get("en", ""),
             oneline_ja=onelines.get(number, {}).get("ja", ""),
@@ -251,18 +354,17 @@ def build_part_index_pages(env: Environment, all_cantos: dict[str, list[Canto]],
     print(f"  wrote {len(PARTS)} canticle index pages")
 
 
-def build_summary_pages(env: Environment, sidebar_parts: list[dict]) -> None:
+def build_summary_pages(env: Environment, all_cantos: dict[str, list[Canto]], sidebar_parts: list[dict]) -> None:
     template = env.get_template("summary.html")
     for part_cfg in PARTS:
         key = part_cfg["key"]
-        summaries = load_segment_summaries(key)
         cantos = [
             {
-                "number": number,
-                "href": canto_href(key, number),
-                "paragraphs": paras,
+                "number": c.number,
+                "href": canto_href(key, c.number),
+                "segments": c.segments,
             }
-            for number, paras in sorted(summaries.items())
+            for c in all_cantos[key]
         ]
         html_out = template.render(
             part_key=key,
@@ -317,7 +419,7 @@ def main() -> None:
     build_part_index_pages(env, all_cantos, sidebar_parts)
 
     print("Building summary pages...")
-    build_summary_pages(env, sidebar_parts)
+    build_summary_pages(env, all_cantos, sidebar_parts)
 
     print("Building index...")
     build_index(env, sidebar_parts)
