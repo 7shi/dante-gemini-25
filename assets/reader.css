@@ -84,12 +84,15 @@ h1, h2 {
 }
 
 .sidebar-section h2 {
+    display: flex;
+    gap: 0.35rem;
     font-size: 0.9rem;
     margin: 0 0 0.5rem;
 }
 
 .sidebar-section h2 a {
     display: block;
+    flex: 1 1 auto;
     border: 1px solid var(--border);
     background: var(--bg);
     border-radius: 6px;
@@ -97,6 +100,10 @@ h1, h2 {
     text-decoration: none;
     color: var(--link);
     font-weight: 600;
+}
+
+.sidebar-section h2 a.summary-link {
+    flex: 0 0 auto;
 }
 
 .sidebar-section h2 a:hover {
@@ -265,31 +272,6 @@ ul.canto-row a.active {
     margin-bottom: 0;
 }
 
-/* one-line summary */
-
-.oneline {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    column-gap: 1.5rem;
-    background: var(--code-bg);
-    border-radius: 8px;
-    padding: 0.75rem 1rem;
-    margin: 0 0 1.5rem;
-    font-size: 0.95rem;
-}
-
-.oneline span[lang="it"],
-.oneline span[lang="ja"] {
-    color: var(--fg);
-}
-
-@media (max-width: 700px) {
-    .oneline {
-        grid-template-columns: 1fr;
-        row-gap: 0.3rem;
-    }
-}
-
 /* trilingual line-by-line canto text */
 
 .trilingual {
@@ -362,6 +344,12 @@ ul.canto-row a.active {
     border-radius: 12px;
     padding: 1.25rem 1.5rem;
     margin-bottom: 1.5rem;
+}
+
+/* canticle index page: one-line summary per canto */
+
+.summary-canto.oneline-canto {
+    background: var(--code-bg);
 }
 
 .summary-canto h2 {
