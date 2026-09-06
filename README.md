@@ -9,6 +9,13 @@ This project translates Dante's Divine Comedy from Italian to English and Japane
 > Errors and mistranslations are present throughout.
 > These files are provided as-is for reference and study purposes only.
 
+## Workflow
+
+[WORKFLOW.md](WORKFLOW.md) is the developer's map of the whole route — source
+text, segmentation, translation, summaries, site — and of why the stages are
+shaped the way they are. Each stage's own README documents its pipeline in
+detail.
+
 ## Source Text
 
 Original Italian text from [Project Gutenberg](https://www.gutenberg.org/ebooks/1000).
