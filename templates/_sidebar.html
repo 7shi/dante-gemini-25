@@ -3,7 +3,10 @@
 
     {% for part in sidebar_parts %}
     <section class="sidebar-section">
-        <h2><a href="{{ base }}{{ part.summary_href }}"{% if current_part is defined and current_part == part.key and current_canto is not defined %} class="active"{% endif %}>{{ part.label }}</a></h2>
+        <h2>
+            <a href="{{ base }}{{ part.href }}" class="part-link{% if current_part is defined and current_part == part.key and current_view == 'index' %} active{% endif %}">{{ part.label }}</a>
+            <a href="{{ base }}{{ part.summary_href }}" class="summary-link{% if current_part is defined and current_part == part.key and current_view == 'summary' %} active{% endif %}">Summary</a>
+        </h2>
         <ul class="link-row canto-row">
             {% for canto in part.cantos %}
             <li><a href="{{ base }}{{ canto.href }}" title="{{ canto.title }}"{% if current_part is defined and current_part == part.key and current_canto is defined and current_canto == canto.number %} class="active"{% endif %}>{{ canto.number }}</a></li>

@@ -7,7 +7,8 @@ generate the static site published at
 file|description
 ----|----
 [canto.html](canto.html) | per-canto page: a line-by-line Italian/English/Japanese trilingual layout
-[summary.html](summary.html) | per-canticle summary page: title illustration + Italian/English/Japanese segment summaries for every canto
+[part_index.html](part_index.html) | per-canticle index page (`{part}/index.html`): title illustration + Italian/English/Japanese one-line summaries for every canto
+[summary.html](summary.html) | per-canticle summary page (`{part}/summary.html`): title illustration + Italian/English/Japanese segment summaries for every canto
 [index.html](index.html) | landing page
 [_sidebar.html](_sidebar.html) | shared sidebar/navigation include
 [static/](static/) | CSS copied as-is into `dist/`

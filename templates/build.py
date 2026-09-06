@@ -5,7 +5,9 @@ en/{part}.md, ja/{part}.md, it/{part}-1.md, en/{part}-1.md, ja/{part}-1.md
 and generates:
 - dist/{part}/NN.html    per-canto page with an Italian/English/Japanese
                          line-by-line trilingual layout
-- dist/{part}/index.html per-canticle summary page (Italian/English/Japanese
+- dist/{part}/index.html per-canticle index page (Italian/English/Japanese
+                         one-line summaries, side by side, per canto)
+- dist/{part}/summary.html per-canticle summary page (Italian/English/Japanese
                          segment summaries, side by side, per canto)
 - dist/index.html        landing page
 - dist/assets/           static assets (reader.css)
@@ -121,8 +123,12 @@ def canto_href(part: str, number: int) -> str:
     return f"{part}/{number:02d}.html"
 
 
-def summary_href(part: str) -> str:
+def part_href(part: str) -> str:
     return f"{part}/index.html"
+
+
+def summary_href(part: str) -> str:
+    return f"{part}/summary.html"
 
 
 def load_part_cantos(part: str) -> list[Canto]:
@@ -151,6 +157,7 @@ def build_sidebar_parts(all_cantos: dict[str, list[Canto]]) -> list[dict]:
         sidebar_parts.append({
             "key": key,
             "label": part_cfg["label"],
+            "href": part_href(key),
             "summary_href": summary_href(key),
             "cantos": [
                 {
@@ -202,7 +209,7 @@ def build_canto_pages(env: Environment, all_cantos: dict[str, list[Canto]], side
                 prev_label=prev_label,
                 next_href=next_href,
                 next_label=next_label,
-                summary_href=summary_href(key),
+                part_href=part_href(key),
                 base="../",
                 sidebar_parts=sidebar_parts,
                 current_part=key,
@@ -213,6 +220,35 @@ def build_canto_pages(env: Environment, all_cantos: dict[str, list[Canto]], side
             out.write_text(html_out, encoding="utf-8")
             count += 1
     print(f"  wrote {count} canto pages")
+
+
+def build_part_index_pages(env: Environment, all_cantos: dict[str, list[Canto]], sidebar_parts: list[dict]) -> None:
+    template = env.get_template("part_index.html")
+    for part_cfg in PARTS:
+        key = part_cfg["key"]
+        cantos = [
+            {
+                "number": c.number,
+                "href": canto_href(key, c.number),
+                "oneline_it": c.oneline_it,
+                "oneline_en": c.oneline_en,
+                "oneline_ja": c.oneline_ja,
+            }
+            for c in all_cantos[key]
+        ]
+        html_out = template.render(
+            part_key=key,
+            part_label=part_cfg["label"],
+            cantos=cantos,
+            base="../",
+            sidebar_parts=sidebar_parts,
+            current_part=key,
+            current_view="index",
+        )
+        out = DIST_DIR / part_href(key)
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(html_out, encoding="utf-8")
+    print(f"  wrote {len(PARTS)} canticle index pages")
 
 
 def build_summary_pages(env: Environment, sidebar_parts: list[dict]) -> None:
@@ -235,6 +271,7 @@ def build_summary_pages(env: Environment, sidebar_parts: list[dict]) -> None:
             base="../",
             sidebar_parts=sidebar_parts,
             current_part=key,
+            current_view="summary",
         )
         out = DIST_DIR / summary_href(key)
         out.parent.mkdir(parents=True, exist_ok=True)
@@ -275,6 +312,9 @@ def main() -> None:
 
     print("Building canto pages...")
     build_canto_pages(env, all_cantos, sidebar_parts)
+
+    print("Building canticle index pages...")
+    build_part_index_pages(env, all_cantos, sidebar_parts)
 
     print("Building summary pages...")
     build_summary_pages(env, sidebar_parts)

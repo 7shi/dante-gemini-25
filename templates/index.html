@@ -45,15 +45,16 @@
                     <h2>Canticles</h2>
                     <div class="canticle-grid">
                         {% for part in sidebar_parts %}
-                        <a class="canticle-card" href="{{ part.summary_href }}">
+                        <a class="canticle-card" href="{{ part.href }}">
                             <img src="images/{{ part.key }}-title.jpg" alt="">
                             <span>{{ part.label }}</span>
                         </a>
                         {% endfor %}
                     </div>
                     <p>
-                        Each canticle also has a summary page with the canticle's title illustration
-                        and, for every canto, an English/Japanese side-by-side summary.
+                        Each canticle has an index page with the canticle's title illustration and a
+                        one-line Italian/English/Japanese summary of every canto, plus a Summary page
+                        with the same cantos summarized segment by segment.
                     </p>
                 </section>
             </div>

@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ part_label }} — La Divina Commedia</title>
+    <link rel="stylesheet" href="{{ base }}assets/reader.css">
+</head>
+<body>
+    <div class="layout">
+        {% include "_sidebar.html" %}
+        <main class="content">
+            <div class="container">
+                <header class="page-header">
+                    <h1>{{ part_label }}</h1>
+                </header>
+
+                <img src="{{ base }}images/{{ part_key }}-title.jpg" alt="" class="header-image">
+
+                {% for c in cantos %}
+                <section class="summary-canto oneline-canto">
+                    <h2><a href="{{ base }}{{ c.href }}">Canto {{ c.number }}</a></h2>
+                    <div class="summary-pair">
+                        <p lang="it">{{ c.oneline_it }}</p>
+                        <p lang="en">{{ c.oneline_en }}</p>
+                        <p lang="ja">{{ c.oneline_ja }}</p>
+                    </div>
+                </section>
+                {% endfor %}
+            </div>
+        </main>
+    </div>
+</body>
+</html>
