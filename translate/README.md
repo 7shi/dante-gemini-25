@@ -58,6 +58,77 @@ commands above.
   uv run align_lines.py ../en.jsonl -m openai:gpt-5.6-terra -s inferno:11:3,purgatorio:18:1
   ```
 
+- **`fix_quotes.py`** - The translation is made a segment at a time with one
+  output line per source line, so nothing carries the state of a speech
+  across a line break: a speech running over several lines can be closed
+  early, reopened in the middle, or never closed at all. Like
+  `align_lines.py` this does not re-translate; it hands the model a
+  segment's source alongside its existing translation and asks for the same
+  text back with only its quotation marks corrected. Unlike `align_lines.py`
+  it does not go through `en.jsonl` / `ja.jsonl`: it takes the per-canto
+  `../en/{part}/NN.txt` / `../ja/{part}/NN.txt` files directly and rewrites
+  them in place, so there is no `make convert` step afterward that could
+  overwrite a hand-fix made directly in those files. Without `-s` it
+  processes every segment of the given files whose source or translation
+  contains a quotation mark. `-n` reports without writing.
+
+  The source's « », “ ” and ‘ ’ are the authority for where a speech begins
+  and ends, and the prompt maps them **by nesting level** rather than by
+  character (the poem opens 85 of its ‘ ’ quotations at the outermost level,
+  so the character does not name the level): outermost -> “ ” / 「」, one
+  inside it -> ‘ ’ / 『』, one inside that -> the outer pair again. Where the
+  source opens in the middle of a line, the mark goes where the target's own
+  word order calls for it, which is why this cannot be done mechanically. A
+  phrase the translation quotes of its own accord - emphasis, a name, a
+  title the source leaves unmarked - loses its marks.
+
+  A segment is only written back if all three hold; otherwise it is reported
+  as a violation and left as it was:
+
+  - the line count still matches the source
+  - nothing but the quotation marks changed (the two versions are compared
+    with every quote character and all whitespace removed)
+  - the marks it leaves unmatched are the ones the source's quote spans call
+    for - a segment that closes a speech it never opened, or opens one it
+    never closes, must do so in the translation too, and only there
+
+  That last one comes from dante-corpus's quote spans and this segment's
+  line range, so it is the source's own structure rather than a count of
+  delimiters: 29 speeches in the poem cross a segment boundary. Only the
+  outermost pair is counted, because a nested quotation never crosses a
+  boundary and English's inner ’ cannot be told from an apostrophe.
+
+  As things stand the check reports 27 of 376 segments in `../en.jsonl` and
+  11 in `../ja.jsonl` as mismatched, nearly all of them a speech the
+  translation closed at a segment boundary that the source runs past.
+
+  A segment that already matches the source's structure is skipped without
+  calling the model at all - sending it in would only risk the model
+  introducing a mark that breaks the match. `--check` runs that same
+  structural test on its own, without calling the model or writing anything,
+  to show what is currently mismatched.
+
+  ```
+  uv run fix_quotes.py ../ja/inferno/01.txt -m openai:gpt-5.6-terra
+  uv run fix_quotes.py ../ja/inferno/01.txt -m openai:gpt-5.6-terra -s 3
+  uv run fix_quotes.py ../ja/inferno/*.txt --check
+  ```
+
+  `make fix-quotes` (or `fix-quotes-en` / `fix-quotes-ja`) runs it for every
+  canto file of both languages.
+
+  Occasionally the same segment fails this way no matter how many times it
+  is rerun. The usual cause is the segmentation cutting a speech mid-sentence
+  at a point that happens to read as grammatically complete on its own - the
+  model closes it there every time, even though the source runs past. Retrying
+  will not fix that; fix the `.txt` file by hand instead. Check the source's
+  quote spans directly (e.g. `dante_corpus.canto(part, chapter).quotes()`, or
+  just read the lines around the segment boundary) to see whether the source
+  actually opens or closes the speech there, then add or remove the
+  corresponding mark in the translation to match - usually a single stray
+  mark at the boundary. `--check` confirms the fix without spending on
+  another model call.
+
 - **`fix_summary.py`** - No longer used. It regenerates a single segment's
   `summary` field in `../en.jsonl` / `../ja.jsonl` from that segment's own
   translation text. Those `summary` fields stopped being the source of the
@@ -70,11 +141,13 @@ commands above.
   uv run fix_summary.py ../ja.jsonl paradiso 8 1 -m gemini-2.5-pro
   ```
 
-After using `align_lines.py`, re-run `make convert` (in this directory) to
-propagate the translation changes into `../en/` and `../ja/`'s per-canto
-`.txt` files, overwriting any hand-fix made directly in those files — that
-overwrite risk is why `convert.py` and its `make` targets live here rather
-than in the root `Makefile`.
+After using `align_lines.py`, which corrects `en.jsonl` / `ja.jsonl` rather
+than the per-canto files, re-run `make convert` (in this directory) to
+propagate the change into `../en/` and `../ja/`'s per-canto `.txt` files,
+overwriting any hand-fix made directly in those files — that overwrite risk
+is why `convert.py` and its `make` targets live here rather than in the root
+`Makefile`. `fix_quotes.py` needs no such follow-up: it rewrites the
+per-canto files themselves.
 
 Note that `convert.py` also still (re)writes `../en/{part}.md` and
 `../ja/{part}.md` from the jsonl `summary` fields; running `make convert`

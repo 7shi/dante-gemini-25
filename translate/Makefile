@@ -1,5 +1,6 @@
 .PHONY: help segment1 segment2 segment3 \
         translate-en translate-ja align align-en align-ja \
+        fix-quotes fix-quotes-en fix-quotes-ja \
         convert convert-en convert-ja \
         summarize summarize1 \
         dedup check
@@ -14,6 +15,9 @@ help:
 	@echo "  align            Fix line-count mismatches in ../en.jsonl and ../ja.jsonl"
 	@echo "  align-en         Fix line-count mismatches in ../en.jsonl"
 	@echo "  align-ja         Fix line-count mismatches in ../ja.jsonl"
+	@echo "  fix-quotes       Fix quotation marks in ../en.jsonl and ../ja.jsonl"
+	@echo "  fix-quotes-en    Fix quotation marks in ../en.jsonl"
+	@echo "  fix-quotes-ja    Fix quotation marks in ../ja.jsonl"
 	@echo "  convert          Expand ../en.jsonl and ../ja.jsonl into ../en/ and ../ja/"
 	@echo "  convert-en       Expand ../en.jsonl into ../en/"
 	@echo "  convert-ja       Expand ../ja.jsonl into ../ja/"
@@ -53,6 +57,21 @@ align-en:
 	uv run align_lines.py ../en.jsonl -m $(ALIGN_MODEL)
 align-ja:
 	uv run align_lines.py ../ja.jsonl -m $(ALIGN_MODEL)
+
+# fix_quotes.py restores the quotation marks a line-by-line translation cannot
+# keep straight across a line break, segment by segment. It rewrites the
+# per-canto ../en/ ../ja/ .txt files directly, in place, so there is no
+# convert.py step to run afterward. It leaves a segment untouched unless
+# nothing but its quotation marks came back changed.
+#
+#   make fix-quotes-ja ARGS='-s 3'
+#   make fix-quotes-ja ARGS='-n'
+fix-quotes: fix-quotes-en fix-quotes-ja
+
+fix-quotes-en:
+	uv run fix_quotes.py ../en/*/*.txt -m $(ALIGN_MODEL) $(ARGS)
+fix-quotes-ja:
+	uv run fix_quotes.py ../ja/*/*.txt -m $(ALIGN_MODEL) $(ARGS)
 
 # convert regenerates ../en/ and ../ja/'s translation .txt files from the
 # JSONL, overwriting any hand-fix made directly in those files. Run
