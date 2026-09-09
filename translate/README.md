@@ -336,5 +336,18 @@ the reason the pass had to be redone rather than relabeled.
   (see the root [README.md](../README.md#output-structure)). Run via
   `make convert` in this directory. (Its `{part}.md` output is superseded by
   `summarize_segments.py` - see above.)
+
+  `-s part:chapter:segment` (repeatable) replaces just the given segment(s)'
+  translation in the existing per-canto `.txt` file, instead of regenerating
+  the whole file from the JSONL - for when only one or two entries in
+  `en.jsonl` / `ja.jsonl` were hand-fixed and everything else in the `.txt`
+  file, such as a `fix_quotes.py` edit, should be left alone. It locates the
+  segment(s) by summing the line counts of the untouched surrounding segments
+  from the JSONL and replacing only that span in the file, so it does not
+  regenerate the `{part}.md` summaries either.
+
+  ```
+  uv run convert.py ../ja.jsonl --output-dir ../ja -s inferno:17:1 -s purgatorio:13:3
+  ```
 - `check.py` - Validates that every segment's line count matches across the
   Italian source, `../en.jsonl`, and `../ja.jsonl`. Run via `make check`.
