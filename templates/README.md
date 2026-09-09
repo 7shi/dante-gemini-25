@@ -13,7 +13,8 @@ file|description
 [_sidebar.html](_sidebar.html) | shared sidebar/navigation include
 [static/](static/) | CSS copied as-is into `dist/`
 
-**`build.py` reads only the expanded `it/`, `en/`, `ja/` files** (`{part}/NN.txt`,
+**`build.py` reads the Italian source from dante-corpus and only the expanded
+`en/`, `ja/` files** (`{part}/NN.txt`) plus the summaries (`it/`, `en/`, `ja/`'s
 `{part}.md`, `{part}-1.md`) — it never touches `en.jsonl` / `ja.jsonl`. Its one
 other input is `translate/segments/{part}.jsonl`, from which it takes the
 segment line ranges (`boundaries`) that split a canto page into sections; the
@@ -27,9 +28,9 @@ and overwrites any such hand-fix. The summaries have their own regenerators,
 `make summarize` and `make summarize1`, which read the Italian source and
 `{part}.md` rather than the jsonl.
 
-`it/{part}/NN.txt` (the Italian source, split per canto) is not tracked in
-git — if missing, run `make -C it all split` first (see
-[it/README.md](../it/README.md)).
+The Italian source comes from [dante-corpus](https://github.com/7shi/dante-corpus)
+through `common/source.py`, so nothing has to be fetched or split before a
+build.
 
 ## Build and Deploy
 

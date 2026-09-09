@@ -3,7 +3,7 @@
 How the Project Gutenberg Italian text becomes the published site: what runs in
 what order, what each stage leaves behind, and why the stages are shaped the
 way they are. The per-stage detail lives in the READMEs next to the code
-([`it/`](it/README.md), [`translate/`](translate/README.md),
+([`translate/`](translate/README.md),
 [`images/`](images/README.md), [`templates/`](templates/README.md)), each of
 which documents its own pipeline; this file is the map between them.
 
@@ -14,7 +14,7 @@ continues from where it stopped.
 
 | # | Stage | Command | Writes |
 |---|-------|---------|--------|
-| 1 | Fetch and split the source | `make -C it all split` | `it/{part}/NN.txt` (gitignored) |
+| 1 | — | the Italian source is read from dante-corpus | nothing to prepare |
 | 2 | Segment | `make -C translate segment1` / `segment2` / `segment3` | `translate/segments/{part}.jsonl` |
 | 3 | Translate | `make -C translate translate-en` / `translate-ja` | `en.jsonl`, `ja.jsonl` |
 | 4 | Reflow mismatched segments | `make -C translate align` | the same JSONL, rewritten in place |
@@ -26,13 +26,14 @@ continues from where it stopped.
 | 10 | Illustrations | `make images` (see [`images/`](images/README.md) to generate them) | `dist/images/` |
 | 11 | Build and deploy | `make build`, `make deploy` | `dist/`, the `gh-pages` branch |
 
-Stages 1-2 are run once. Stages 3-4 and 7-8 are the expensive ones. Stage 9 is
+Stage 2 is run once. Stages 3-4 and 7-8 are the expensive ones. Stage 9 is
 for a canto you have judged repetitive, not a pass over the poem - so far no
 canto has called for it.
 
-**1. Fetch and split.** [`it/`](it/README.md) downloads `pg1000.txt` and splits
-it into one file per canto. Both the download and the split output are
-gitignored, so a fresh clone runs this first.
+**1. Source text.** The Italian comes from
+[dante-corpus](https://github.com/7shi/dante-corpus) through `common/source.py`
+(see [README.md](README.md#source-text)), one line per line of verse, so a
+fresh clone has nothing to fetch or split.
 
 **2. Segment.** `translate/segment_chapters.py` asks the model to split each
 canto's lines into translation-sized segments and records the line ranges. The

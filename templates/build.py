@@ -1,8 +1,9 @@
 """Static site builder for dante-gemini-25.
 
-Reads it/{part}/NN.txt, en/{part}/NN.txt, ja/{part}/NN.txt, it/{part}.md,
-en/{part}.md, ja/{part}.md, it/{part}-1.md, en/{part}-1.md, ja/{part}-1.md
-and translate/segments/{part}.jsonl (segment line ranges only) and generates:
+Reads the Italian source from dante-corpus (see common/source.py), plus
+en/{part}/NN.txt, ja/{part}/NN.txt, it/{part}.md, en/{part}.md, ja/{part}.md,
+it/{part}-1.md, en/{part}-1.md, ja/{part}-1.md and
+translate/segments/{part}.jsonl (segment line ranges only) and generates:
 - dist/{part}/NN.html    per-canto page: the canto's one-line summary, then
                          the text split into its segments, each headed by the
                          segment summary, in an Italian/English/Japanese
@@ -15,7 +16,7 @@ and translate/segments/{part}.jsonl (segment line ranges only) and generates:
 - dist/assets/           static assets (reader.css)
 - dist/images/           compressed illustrations (see images/compress.py)
 
-Note: this reads only the expanded it/en/ja files, never en.jsonl/ja.jsonl -
+Note: this reads only the expanded en/ja files, never en.jsonl/ja.jsonl -
 translation fixes are made directly in the expanded files (see README.md).
 """
 
@@ -29,6 +30,7 @@ from pathlib import Path
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 from common.canto_md import parse_oneline_md, parse_summary_md
+from common.source import canto_lines, count_cantos
 
 ROOT = Path(__file__).parent.parent
 TEMPLATES_DIR = ROOT / "templates"
@@ -79,24 +81,14 @@ class Canto:
     is_last: bool = False
 
 
-def count_cantos(part: str) -> int:
-    return len(list((ROOT / "it" / part).glob("[0-9][0-9].txt")))
-
-
 def read_lines(path: Path) -> list[str]:
     return path.read_text(encoding="utf-8").rstrip("\n").split("\n")
 
 
 def load_canto_lines(part: str, number: int) -> list[tuple[int, str, str, str]]:
-    it_path = ROOT / "it" / part / f"{number:02d}.txt"
     en_path = ROOT / "en" / part / f"{number:02d}.txt"
     ja_path = ROOT / "ja" / part / f"{number:02d}.txt"
-    if not it_path.exists():
-        raise SystemExit(
-            f"Missing {it_path.relative_to(ROOT)}. "
-            f"Run 'make -C it all split' to regenerate the Italian source text."
-        )
-    it_lines = read_lines(it_path)
+    it_lines = canto_lines(part, number)
     en_lines = read_lines(en_path)
     ja_lines = read_lines(ja_path)
     n = max(len(it_lines), len(en_lines), len(ja_lines))

@@ -19,7 +19,7 @@ from typing import Dict, List, Tuple
 
 from llm7shi import Client
 
-from translate_segments import load_chapter_blocks_from_directory
+from common.source import chapter_blocks
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -116,10 +116,7 @@ def save_records(path: str, records: List[Dict]) -> None:
 def load_source_chapters() -> Dict[str, List[List[str]]]:
     chapters = {}
     for part in PARTS:
-        data = load_chapter_blocks_from_directory(
-            os.path.join(SCRIPT_DIR, "segments", f"{part}.jsonl"),
-            os.path.join(SCRIPT_DIR, "..", "it", part),
-        )
+        data = chapter_blocks(os.path.join(SCRIPT_DIR, "segments", f"{part}.jsonl"), part)
         chapters[part] = data["chapters"]
     return chapters
 

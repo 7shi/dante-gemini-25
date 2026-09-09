@@ -22,7 +22,6 @@ single-line paragraph per segment.
 """
 
 import argparse
-import glob
 import json
 import os
 import re
@@ -34,6 +33,7 @@ from pydantic import BaseModel, Field
 from llm7shi import Client
 
 from common.canto_md import format_summary_md, parse_summary_md
+from common.source import chapter_blocks
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -79,37 +79,7 @@ def load_source_chapters() -> Dict[str, List[List[str]]]:
     chapters = {}
     for part in PARTS:
         segmentation_file = os.path.join(SCRIPT_DIR, "segments", f"{part}.jsonl")
-        directory = os.path.join(SCRIPT_DIR, "..", "it", part)
-
-        segmentation_data = {}
-        with open(segmentation_file, "r", encoding="utf-8") as f:
-            for line in f:
-                if line.strip():
-                    data = json.loads(line)
-                    segmentation_data[data["chapter"]] = data
-
-        chapter_files = sorted(glob.glob(os.path.join(directory, "*.txt")))
-        if not chapter_files:
-            raise FileNotFoundError(f"No .txt files found in directory '{directory}'")
-
-        blocks = []
-        for chapter_file in chapter_files:
-            chapter_num = int(os.path.basename(chapter_file).replace(".txt", ""))
-            with open(chapter_file, "r", encoding="utf-8") as f:
-                lines = [line.strip() for line in f.readlines() if line.strip()]
-
-            if chapter_num in segmentation_data:
-                segments = []
-                for boundary in segmentation_data[chapter_num]["boundaries"]:
-                    start_line = boundary["start_line"] - 1
-                    end_line = boundary["end_line"] - 1
-                    if start_line < len(lines) and end_line < len(lines):
-                        segments.append("\n".join(lines[start_line:end_line + 1]))
-                blocks.append(segments)
-            else:
-                blocks.append(["\n".join(lines)])
-
-        chapters[part] = blocks
+        chapters[part] = chapter_blocks(segmentation_file, part)["chapters"]
     return chapters
 
 

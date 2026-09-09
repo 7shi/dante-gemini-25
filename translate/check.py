@@ -8,6 +8,8 @@ import json
 from collections import defaultdict
 from pathlib import Path
 
+from common.source import canto_lines
+
 def load_segment_data(jsonl_file):
     """Load segment data from JSONL file."""
     segments = []
@@ -52,11 +54,9 @@ def count_translation_lines(translation_text):
     return len(translation_text.strip().split('\n'))
 
 def count_lines_from_txt(part, chapter):
-    """Count lines from original txt file."""
+    """Count lines of the canto in dante-corpus."""
     try:
-        txt_file = Path('..') / 'it' / part / f"{chapter:02d}.txt"
-        with open(txt_file, 'r', encoding='utf-8') as f:
-            return sum(1 for _ in f)
+        return len(canto_lines(part, chapter))
     except Exception:
         return None
 

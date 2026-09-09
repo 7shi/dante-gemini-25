@@ -14,10 +14,11 @@ import os
 import json
 import argparse
 import time
-import glob
 from typing import Dict, List, Optional
 from pydantic import BaseModel, Field
 from llm7shi.compat import generate_with_schema
+
+from common.source import chapter_blocks
 from llm7shi import create_json_descriptions_prompt
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -169,6 +170,52 @@ def load_existing_translations(output_file: str) -> Dict[tuple, Dict]:
     
     return existing
 
+def resolve_part_order(run_parts: List[str], existing_translations: Dict[tuple, Dict]) -> Dict[str, float]:
+    """Build the part -> story-position map used to keep the output file sorted.
+
+    Covers both this run's parts and any parts already present in the output file but
+    not passed this run (e.g. resuming inferno only while the file also holds
+    purgatorio records). The file is maintained in story order, so the first-appearance
+    order of its parts is authoritative for them; parts shared with the run anchor the
+    two orders together. File-only parts slot next to their neighboring run parts with
+    fractional positions, or before all run parts when they share none.
+    """
+    order: Dict[str, float] = {part: i for i, part in enumerate(run_parts)}
+
+    if all(key[0] in order for key in existing_translations):
+        return order
+
+    # Group the file-only parts by the run part that follows them in the file.
+    groups = []  # (position of the following run part, file-only parts preceding it)
+    current: List[str] = []
+    last_run_part = None
+    for key in existing_translations:
+        part = key[0]
+        if part in order:
+            if part != last_run_part:
+                groups.append((order[part], current))
+                current = []
+                last_run_part = part
+        elif not current or current[-1] != part:
+            current.append(part)
+    trailing = current
+
+    for anchor, parts in groups:
+        n = len(parts)
+        for i, part in enumerate(parts):
+            order[part] = anchor - (n - i) / (n + 1)
+
+    n = len(trailing)
+    if groups:
+        base = groups[-1][0]
+        for i, part in enumerate(trailing):
+            order[part] = base + (i + 1) / (n + 1)
+    else:
+        for i, part in enumerate(trailing):
+            order[part] = i - n
+
+    return order
+
 def save_translation_result(
     output_file: str,
     part: str,
@@ -184,10 +231,10 @@ def save_translation_result(
 
     known_records holds every record currently in output_file (as of the start of this
     run, updated as records are added), keyed by (part, chapter, segment). part_order
-    maps each part name to its position in story order (the order of the directories
-    argument). Appending is safe (keeps the file in story order) only when this record
-    is the new last one in that order; otherwise the file must be rewritten in full so
-    it stays sorted.
+    maps each part name (including parts that appear only in the output file, see
+    resolve_part_order) to its position in story order. Appending is safe (keeps the
+    file in story order) only when this record is the new last one in that order;
+    otherwise the file must be rewritten in full so it stays sorted.
     """
     record = {
         "part": part,
@@ -213,66 +260,9 @@ def save_translation_result(
             for k in sorted(known_records, key=lambda k: (part_order[k[0]], k[1], k[2])):
                 f.write(json.dumps(known_records[k], ensure_ascii=False) + '\n')
 
-def load_chapter_blocks_from_directory(segmentation_file: str, directory: str) -> Dict:
-    """Load chapter blocks from directory-based segmentation data"""
-    
-    # Load segmentation data
-    segmentation_data = {}
-    if os.path.exists(segmentation_file):
-        with open(segmentation_file, 'r', encoding='utf-8') as f:
-            for line in f:
-                if line.strip():
-                    data = json.loads(line)
-                    chapter_num = data['chapter']
-                    segmentation_data[chapter_num] = data
-    
-    # Get all .txt files in the directory and sort them
-    chapter_files = sorted(glob.glob(os.path.join(directory, '*.txt')))
-    
-    if not chapter_files:
-        raise FileNotFoundError(f"No .txt files found in directory '{directory}'")
-    
-    chapter_blocks = []
-    
-    for chapter_file in chapter_files:
-        chapter_num = int(os.path.basename(chapter_file).replace('.txt', ''))
-        
-        # Read chapter content
-        with open(chapter_file, 'r', encoding='utf-8') as f:
-            lines = [line.strip() for line in f.readlines() if line.strip()]
-        
-        # Get segmentation boundaries for this chapter
-        if chapter_num in segmentation_data:
-            boundaries_data = segmentation_data[chapter_num]['boundaries']
-            
-            # Create segments based on boundaries
-            segments = []
-            for boundary in boundaries_data:
-                start_line = boundary['start_line'] - 1  # Convert to 0-based index
-                end_line = boundary['end_line'] - 1      # Convert to 0-based index
-                
-                if start_line < len(lines) and end_line < len(lines):
-                    segment_lines = lines[start_line:end_line + 1]
-                    segment_text = '\n'.join(segment_lines)
-                    segments.append(segment_text)
-            
-            chapter_blocks.append(segments)
-        else:
-            # No segmentation data, treat entire chapter as one segment
-            chapter_text = '\n'.join(lines)
-            chapter_blocks.append([chapter_text])
-    
-    # Extract title from directory name or use default
-    title = os.path.basename(directory).title()
-    
-    return {
-        "title": title,
-        "chapters": chapter_blocks
-    }
-
 def main():
     parser = argparse.ArgumentParser(description='Translate text segments with proper noun consistency and story context')
-    parser.add_argument('directories', nargs='+', help='Source directories containing chapter .txt files')
+    parser.add_argument('parts', nargs='+', help='Canticles to translate (inferno, purgatorio, paradiso)')
     parser.add_argument('-f', '--from_lang', required=True, 
                        help='Source language (e.g., italian, english, japanese)')
     parser.add_argument('-t', '--to_lang', required=True,
@@ -285,7 +275,9 @@ def main():
                        help='Proper nouns dictionary TSV file (default: proper_nouns/all.tsv)')
     parser.add_argument('--limit', type=int,
                        help='Limit number of segment translations to perform this run (for debugging)')
-    
+    parser.add_argument('-n', '--dry-run', action='store_true',
+                       help='Show which segments would be translated without calling the LLM')
+
     args = parser.parse_args()
     
     # Load proper nouns dictionary
@@ -294,27 +286,30 @@ def main():
     # Load existing translations for resume capability
     existing_translations = load_existing_translations(args.output)
     
-    # Process each directory
+    # Process each canticle
     all_data = []
-    for directory in args.directories:
-        directory_name = os.path.basename(directory)
-        segmentation_file = os.path.join(SCRIPT_DIR, "segments", f"{directory_name}.jsonl")
+    for part in args.parts:
+        segmentation_file = os.path.join(SCRIPT_DIR, "segments", f"{part}.jsonl")
         
-        print(f"Loading segments from {directory} using {segmentation_file}")
+        print(f"Loading {part} from dante-corpus using {segmentation_file}")
         
         try:
-            data = load_chapter_blocks_from_directory(segmentation_file, directory)
-            all_data.append((directory_name, data))
-        except FileNotFoundError as e:
+            all_data.append((part, chapter_blocks(segmentation_file, part)))
+        except (FileNotFoundError, KeyError) as e:
             print(f"Warning: {e}")
             continue
     
     if not all_data:
-        print("No valid directories found.")
+        print("No valid canticles found.")
         return 1
 
-    # Story order for each part, used to keep the output JSONL sorted on save
-    part_order = {directory_name: idx for idx, (directory_name, _) in enumerate(all_data)}
+    # Story order for each part, covering parts already in the output file too, used
+    # to keep the output JSONL sorted on save
+    run_parts = [part for part, _ in all_data]
+    part_order = resolve_part_order(run_parts, existing_translations)
+    outside = list(dict.fromkeys(k[0] for k in existing_translations if k[0] not in run_parts))
+    if outside:
+        print(f"Note: {args.output} also contains {', '.join(outside)} records outside this run; they are preserved.")
     known_records = dict(existing_translations)
 
     # Single pass over every chapter in story order (directories, then chapters within
@@ -331,14 +326,14 @@ def main():
 
     for directory_name, data in all_data:
         title = data["title"]
-        chapter_blocks = data["chapters"]
+        chapters = data["chapters"]
 
         print(f"\nProcessing directory: {directory_name}")
         print(f"Title: {title}")
         print(f"Starting translation: {args.from_lang} -> {args.to_lang}")
         print("=" * 60)
 
-        for chapter_num, segments in enumerate(chapter_blocks, 1):
+        for chapter_num, segments in enumerate(chapters, 1):
             chapter_complete = all(
                 (directory_name, chapter_num, seg_num) in existing_translations
                 for seg_num in range(1, len(segments) + 1)
@@ -350,6 +345,14 @@ def main():
                         previous_summaries.append(existing["summary"])
                     elif existing.get("response", {}).get("summary"):
                         previous_summaries.append(existing["response"]["summary"])
+                continue
+
+            if args.dry_run:
+                missing = [seg_num for seg_num in range(1, len(segments) + 1)
+                           if (directory_name, chapter_num, seg_num) not in existing_translations]
+                missing_str = ", ".join(str(n) for n in missing)
+                print(f"Chapter {chapter_num:2d}: {len(missing)}/{len(segments)} segments would be translated (segments: {missing_str})")
+                translations_done += len(missing)
                 continue
 
             if args.limit and translations_done >= args.limit:
@@ -411,6 +414,10 @@ def main():
                     print(" completed")
                 else:
                     print(" failed")
+
+    if args.dry_run:
+        print(f"\nDry run: {translations_done} segment(s) would be translated.")
+        return 0
 
     print(f"\nAll translations completed!")
     print(f"Output saved to: {args.output}")

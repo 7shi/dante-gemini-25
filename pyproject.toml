@@ -7,6 +7,7 @@ requires-python = ">=3.10"
 repository = "https://github.com/7shi/dante-gemini-25"
 
 dependencies = [
+    "dante-corpus",
     "jinja2",
     "llm7shi",
     "pillow>=12.3.0",
@@ -15,6 +16,7 @@ dependencies = [
 
 [tool.uv.sources]
 llm7shi = { git = "https://github.com/7shi/llm7shi.git" }
+dante-corpus = { path = "../dante-corpus", editable = true }
 
 [build-system]
 requires = ["hatchling"]

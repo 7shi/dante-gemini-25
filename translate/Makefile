@@ -30,18 +30,18 @@ MODEL = gemini-2.5-pro
 SEGMENT = uv run segment_chapters.py -m $(MODEL)
 
 segment1:
-	$(SEGMENT) -o segments/inferno.jsonl ../it/inferno
+	$(SEGMENT) -o segments/inferno.jsonl inferno
 segment2:
-	$(SEGMENT) -o segments/purgatorio.jsonl ../it/purgatorio
+	$(SEGMENT) -o segments/purgatorio.jsonl purgatorio
 segment3:
-	$(SEGMENT) -o segments/paradiso.jsonl ../it/paradiso
+	$(SEGMENT) -o segments/paradiso.jsonl paradiso
 
 TRANSLATE = uv run translate_segments.py -m $(MODEL)
 
 translate-en:
-	$(TRANSLATE) -o ../en.jsonl ../it/inferno ../it/purgatorio ../it/paradiso -f Italian -t English
+	$(TRANSLATE) -o ../en.jsonl inferno purgatorio paradiso -f Italian -t English
 translate-ja:
-	$(TRANSLATE) -o ../ja.jsonl ../it/inferno ../it/purgatorio ../it/paradiso -f Italian -t Japanese
+	$(TRANSLATE) -o ../ja.jsonl inferno purgatorio paradiso -f Italian -t Japanese
 
 ALIGN_MODEL = openai:gpt-5.6-terra
 

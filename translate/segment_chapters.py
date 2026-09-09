@@ -2,11 +2,12 @@ import os
 import json
 import re
 import argparse
-import glob
 from typing import List
 from pydantic import BaseModel, Field
 from llm7shi.compat import generate_with_schema
 from llm7shi import create_json_descriptions_prompt
+
+from common.source import canto_lines, count_cantos
 
 class SegmentBoundary(BaseModel):
     reasoning: str = Field(description="Story summary and reason for segmenting at this position")
@@ -18,22 +19,15 @@ class ChapterSegmentation(BaseModel):
     total_lines: int = Field(description="Total content lines in chapter")
     segment_boundaries: List[SegmentBoundary] = Field(description="List of segment boundaries")
 
-def extract_chapter_content(filename):
-    """Extract content from a single chapter file (excluding empty lines)"""
-    with open(filename, 'r', encoding='utf-8') as f:
-        lines = f.readlines()
-    
-    content_lines = []
-    line_mapping = {}  # content line number -> original line number
-    content_line_num = 0
-    
-    for i, line in enumerate(lines):
-        line_stripped = line.strip()
-        if line_stripped:  # exclude empty lines
-            content_line_num += 1
-            content_lines.append(line_stripped)
-            line_mapping[content_line_num] = i + 1
-    
+def extract_chapter_content(part, chapter_num):
+    """A canto's lines from dante-corpus, with the identity line mapping.
+
+    The corpus holds one line per line with no blanks, so a line's number
+    within the canto is already its number in the canto - the mapping is kept
+    only because the callers below still speak in those two numberings.
+    """
+    content_lines = canto_lines(part, chapter_num)
+    line_mapping = {i: i for i in range(1, len(content_lines) + 1)}
     return content_lines, line_mapping
 
 def save_segmentation_to_jsonl(chapter_num, result, content_lines, line_mapping, output_file, filename, known_chapters):
@@ -171,14 +165,13 @@ def load_segmented_chapters(output_file):
                     chapters.add(json.loads(line)['chapter'])
     return chapters
 
-def create_translation_chunks(directory, model, output_file, limit=None):
-    """Analyze all chapters from individual files and create translation chunks"""
+def create_translation_chunks(part, model, output_file, limit=None):
+    """Analyze every canto of a canticle and create translation chunks"""
 
-    # Get all .txt files in the directory and sort them
-    chapter_files = sorted(glob.glob(os.path.join(directory, '*.txt')))
+    chapter_numbers = list(range(1, count_cantos(part) + 1))
 
-    if not chapter_files:
-        raise FileNotFoundError(f"No .txt files found in directory '{directory}'")
+    if not chapter_numbers:
+        raise FileNotFoundError(f"No cantos found for '{part}'")
 
     translation_chunks = []
     threshold = 25
@@ -186,21 +179,20 @@ def create_translation_chunks(directory, model, output_file, limit=None):
 
     # Apply limit if specified
     if limit:
-        chapter_files = chapter_files[:limit]
+        chapter_numbers = chapter_numbers[:limit]
         print(f"Starting translation chunk creation (threshold: {threshold} lines, limit: {limit} chapters)")
     else:
         print(f"Starting translation chunk creation (threshold: {threshold} lines)")
     print("=" * 60)
 
-    for i, chapter_file in enumerate(chapter_files, 1):
-        chapter_num = int(os.path.basename(chapter_file).replace('.txt', ''))
+    for i, chapter_num in enumerate(chapter_numbers, 1):
+        chapter_file = f"{chapter_num:02d}.txt"
 
         if chapter_num in already_segmented:
             print(f"Chapter {chapter_num:2d}: already segmented → skipping")
             continue
 
-        # Extract content from single chapter file
-        chunk_content, line_mapping = extract_chapter_content(chapter_file)
+        chunk_content, line_mapping = extract_chapter_content(part, chapter_num)
         content_lines = len(chunk_content)
 
         print(f"Chapter {chapter_num:2d}: {content_lines:2d} lines ", end="")
@@ -210,7 +202,7 @@ def create_translation_chunks(directory, model, output_file, limit=None):
             translation_chunks.append({
                 'type': 'whole_chapter',
                 'chapter': chapter_num,
-                'filename': os.path.basename(chapter_file),
+                'filename': chapter_file,
                 'content': chunk_content,
                 'lines': content_lines,
                 'source_lines': f"1-{len(chunk_content)}"
@@ -239,7 +231,7 @@ def create_translation_chunks(directory, model, output_file, limit=None):
                         translation_chunks.append({
                             'type': 'chapter_segment',
                             'chapter': chapter_num,
-                            'filename': os.path.basename(chapter_file),
+                            'filename': chapter_file,
                             'segment': j + 1,
                             'content': segment_content,
                             'lines': len(segment_content),
@@ -254,7 +246,7 @@ def create_translation_chunks(directory, model, output_file, limit=None):
                 translation_chunks.append({
                     'type': 'chapter_half',
                     'chapter': chapter_num,
-                    'filename': os.path.basename(chapter_file),
+                    'filename': chapter_file,
                     'segment': 1,
                     'content': chunk_content[:mid],
                     'lines': mid,
@@ -264,7 +256,7 @@ def create_translation_chunks(directory, model, output_file, limit=None):
                 translation_chunks.append({
                     'type': 'chapter_half', 
                     'chapter': chapter_num,
-                    'filename': os.path.basename(chapter_file),
+                    'filename': chapter_file,
                     'segment': 2,
                     'content': chunk_content[mid:],
                     'lines': len(chunk_content) - mid,
@@ -282,13 +274,12 @@ def main():
                        help='Output JSONL file to save segmentation results')
     parser.add_argument('--limit', type=int, 
                        help='Limit number of chapters to process (for debugging)')
-    parser.add_argument('directory', nargs='?', default='.',
-                       help='Directory containing chapter .txt files (default: current directory)')
+    parser.add_argument('part', help='Canticle to segment (inferno, purgatorio, paradiso)')
     
     args = parser.parse_args()
     
     try:
-        chunks = create_translation_chunks(args.directory, args.model, args.output, args.limit)
+        chunks = create_translation_chunks(args.part, args.model, args.output, args.limit)
         
         print(f"\nTranslation preparation completed!")
         print(f"Total chunks: {len(chunks)}")

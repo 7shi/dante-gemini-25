@@ -18,9 +18,37 @@ detail.
 
 ## Source Text
 
-Original Italian text from [Project Gutenberg](https://www.gutenberg.org/ebooks/1000).
+Original Italian text from [Project Gutenberg](https://www.gutenberg.org/ebooks/1000), read through `dante-corpus` (see below).
 
-See [it/README.md](it/README.md) and [translate/README.md](translate/README.md) for the pipeline that turns this source text into the per-segment JSONL files consumed below.
+Its normalization is what makes the source usable for anything that reasons about speech: elisions are written with an ASCII apostrophe (`ch'i'`), leaving `«»`, `“”` and `‘’` to mark speech alone. This project's own former copy of the text, in `it/`, wrote both with `’`, so the two could not be told apart.
+
+See [translate/README.md](translate/README.md) for the pipeline that turns this source text into the per-segment JSONL files consumed below.
+
+### Dependency Projects
+
+This project depends on the following companion repository:
+
+- [dante-corpus](https://github.com/7shi/dante-corpus) - The shared corpus library and thin CLI. Serves the normalized Italian source text, tokens, and the quote-span tree as a queryable "DB" through its `dante_corpus` API. **Required** — this project reads canto text from it via an editable path dependency, through [`common/source.py`](common/source.py).
+
+### Preparation
+
+Because `dante-gemini-25` consumes `dante-corpus` via an editable path dependency (`../dante-corpus`), both repositories must share one parent directory. Ensure you have `uv` installed, then clone both into the same directory:
+
+```bash
+git clone https://github.com/7shi/dante-corpus.git
+git clone https://github.com/7shi/dante-gemini-25.git
+make -C dante-corpus
+cd dante-gemini-25
+uv sync
+```
+
+The resulting layout:
+
+```
+your-workspace/
+├── dante-corpus/       # source text, tokens (read via the dante_corpus API)
+└── dante-gemini-25/    # this repo (translation, summaries, site)
+```
 
 ## Shared Code
 
@@ -28,13 +56,14 @@ See [it/README.md](it/README.md) and [translate/README.md](translate/README.md) 
 
 ## Output Structure
 
-Each of `it/`, `en/`, `ja/` has the same layout:
+`en/` and `ja/` hold the translations, `it/` only the summaries (the Italian
+text itself comes from dante-corpus):
 
 ```
-{lang}/                      # it/, en/, or ja/
+{lang}/                      # en/ or ja/; it/ has the .md files only
 ├── inferno/
-│   ├── 01.txt              # Canto 1 text (translation, for en/ja)
-│   ├── 02.txt              # Canto 2 text
+│   ├── 01.txt              # Canto 1 translation
+│   ├── 02.txt              # Canto 2 translation
 │   └── ...
 ├── purgatorio/
 │   └── ...

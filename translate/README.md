@@ -1,16 +1,17 @@
 # Translation Pipeline
 
-This directory holds the pipeline that turns the per-canto Italian text in
-[`../it/`](../it/README.md) into the per-segment JSONL files
+This directory holds the pipeline that turns the Italian text, read from
+[dante-corpus](https://github.com/7shi/dante-corpus), into the per-segment JSONL files
 (`segments/inferno.jsonl`, `segments/purgatorio.jsonl`,
 `segments/paradiso.jsonl`) and, from those, into the root `en.jsonl` /
 `ja.jsonl` translations, consumed by `convert.py`, which also lives here.
 
 ## Pipeline
 
-Run `make -C it` and `make -C it split` first (see
-[`../it/README.md`](../it/README.md)) to produce `../it/inferno/`,
-`../it/purgatorio/`, `../it/paradiso/`.
+The Italian source is read from [dante-corpus](https://github.com/7shi/dante-corpus)
+through `common/source.py`, so there is nothing to fetch or split first. Every
+script below names a canticle (`inferno`, `purgatorio`, `paradiso`) rather than
+a directory of `.txt` files.
 
 1. **Segment each chapter** (`make segment1` / `segment2` / `segment3`)
 
@@ -20,18 +21,18 @@ Run `make -C it` and `make -C it split` first (see
    `segments/paradiso.jsonl`).
 
    ```
-   uv run segment_chapters.py -m gemini-2.5-pro -o segments/inferno.jsonl ../it/inferno
+   uv run segment_chapters.py -m gemini-2.5-pro -o segments/inferno.jsonl inferno
    ```
 
 2. **Translate segments** (`make translate-en` / `translate-ja`)
 
-   `translate_segments.py` translates each segment from the per-canto `.txt`
-   files into the target language, using a proper-noun dictionary and prior
+   `translate_segments.py` translates each segment of the canticle into the
+   target language, using a proper-noun dictionary and prior
    segments' summaries as context, and writes the result to the root
    `en.jsonl` / `ja.jsonl`.
 
    ```
-   uv run translate_segments.py -o ../en.jsonl ../it/inferno ../it/purgatorio ../it/paradiso -f Italian -t English -m gemini-2.5-pro
+   uv run translate_segments.py -o ../en.jsonl inferno purgatorio paradiso -f Italian -t English -m gemini-2.5-pro
    ```
 
    Chapters must be translated in story order, front to back, with no gaps,

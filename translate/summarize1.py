@@ -20,7 +20,6 @@ can be run incrementally alongside it.
 """
 
 import argparse
-import glob
 import os
 import re
 import sys
@@ -31,6 +30,7 @@ from pydantic import BaseModel, Field
 from llm7shi import Client
 
 from common.canto_md import parse_oneline_md, parse_summary_md
+from common.source import count_cantos
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -62,10 +62,6 @@ Write a one-line summary of the whole canto in Italian, English and Japanese.
 - Write the Italian summary first, then make the English and Japanese summaries strict translations of it: the same content, in the same order, not independent summaries.
 - Focus on the most important narrative events and characters, in the same style (tense, register) as the segment summaries above.
 - Each of the three summaries must be a single sentence with no line breaks."""
-
-
-def count_cantos(part: str) -> int:
-    return len(glob.glob(os.path.join(SCRIPT_DIR, "..", "it", part, "[0-9][0-9].txt")))
 
 
 def normalize(text: str) -> str:
