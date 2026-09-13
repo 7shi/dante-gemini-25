@@ -3,7 +3,8 @@
         fix-quotes fix-quotes-en fix-quotes-ja \
         convert convert-en convert-ja \
         summarize summarize1 \
-        dedup check
+        dedup check \
+        proper-noun-en proper-noun-ja
 
 help:
 	@echo "Usage: make <target>"
@@ -25,6 +26,8 @@ help:
 	@echo "  summarize1       Regenerate ../it/../en/../ja/*-1.md as a matched trilingual set (LLM)"
 	@echo "  dedup            Remove cross-segment repetition from ../it/../en/../ja/*.md (LLM)"
 	@echo "  check            Check segment line counts match across it/en/ja"
+	@echo "  proper-noun-en   Extract proper nouns from ../en/*/*.txt into proper_noun/en/ (LLM)"
+	@echo "  proper-noun-ja   Extract proper nouns from ../ja/*/*.txt into proper_noun/ja/ (LLM)"
 	@echo ""
 	@echo "convert overwrites the hand-edited ../en/ and ../ja/ translation .txt files."
 	@echo "summarize/summarize1 are resumable: interrupt and re-run to continue where left off."
@@ -118,3 +121,15 @@ dedup:
 
 check:
 	uv run check.py
+
+# proper_noun.py extracts proper nouns straight out of the finished ../en/
+# ../ja/ .txt files (not en.jsonl/ja.jsonl) and aggregates them into
+# proper_noun/<lang>/proper_noun.tsv, the same format as dante-corpus's own
+# proper_noun/proper_noun.tsv - see proper_noun.py's docstring.
+#
+#   make proper-noun-en ARGS='-c 1'
+#   make proper-noun-en ARGS='--aggregate-only'
+proper-noun-en:
+	uv run proper_noun.py -l en -m $(ALIGN_MODEL) -b 30 inferno purgatorio paradiso $(ARGS)
+proper-noun-ja:
+	uv run proper_noun.py -l ja -m $(ALIGN_MODEL) -b 30 inferno purgatorio paradiso $(ARGS)
