@@ -24,3 +24,6 @@ images/*.jpg
 images/inferno/
 images/purgatorio/
 images/paradiso/
+
+# Generated files
+*.log
